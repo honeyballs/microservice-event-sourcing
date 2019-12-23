@@ -38,6 +38,7 @@ class KafkaProducerConfig {
     fun producerConfigs():Map<String, Any> {
         val configs = HashMap<String, Any>()
         configs[ProducerConfig.BOOTSTRAP_SERVERS_CONFIG] = env.getProperty("KAFKA_URL", "localhost:9093")
+        configs[ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG] = true
         return configs
     }
 
@@ -51,7 +52,9 @@ class KafkaProducerConfig {
         val serializer = JsonSerializer<Event>(mapper)
         serializer.isAddTypeInfo = false
         val factory = DefaultKafkaProducerFactory<String, Event>(producerConfigs(), StringSerializer(), serializer)
-        factory.setTransactionIdPrefix("project-administration-transaction")
+        val containerName = env.getProperty("CONTAINER_NAME", "localhost")
+        val containerNr = env.getProperty("CONTAINER_NR", "")
+        factory.setTransactionIdPrefix("$containerName${containerNrWithDot(containerNr)}")
         return factory
     }
 
@@ -63,5 +66,12 @@ class KafkaProducerConfig {
     @Bean
     fun kafkaTemplate(factory: ProducerFactory<String, Event>): KafkaTemplate<String, Event> {
         return KafkaTemplate<String, Event>(factory)
+    }
+
+    fun containerNrWithDot(nr: String): String {
+        if (nr != "") {
+            return ".$nr"
+        }
+        return nr
     }
 }

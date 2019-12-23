@@ -1,9 +1,9 @@
 package com.example.employeeadministration.controller
 
-import com.example.employeeadministration.model.aggregates.Employee
 import com.example.employeeadministration.model.dto.EmployeeDto
 import com.example.employeeadministration.services.EmployeeService
-import com.example.employeeadministration.streams.EmployeeRepository
+import com.example.employeeadministration.streams.EmployeeRepositoryGlobal
+import com.example.employeeadministration.streams.EmployeeRepositoryLocal
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok
 import org.springframework.web.bind.annotation.*
@@ -12,7 +12,7 @@ const val URL= "employee"
 
 @RestController
 class EmployeeController(
-        val employeeRepository: EmployeeRepository,
+        val employeeRepository: EmployeeRepositoryGlobal,
         val employeeService: EmployeeService
 ) {
 
@@ -23,12 +23,12 @@ class EmployeeController(
 
     @GetMapping("$URL/{department}")
     fun getAllOfDepartment(@PathVariable("department") department: String): ResponseEntity<List<EmployeeDto>> {
-        return ok(employeeRepository.getAllOfDepartment(department).map { employeeService.mapEntityToDto(it) })
+        return ok(employeeRepository.getAllByDepartment(department).map { employeeService.mapEntityToDto(it) })
     }
 
     @GetMapping("$URL/{id}")
     fun getById(@PathVariable("id") id: String): ResponseEntity<EmployeeDto> {
-        return ok(employeeRepository.getEmployeeById(id).map { employeeService.mapEntityToDto(it) }.orElseThrow())
+        return ok(employeeRepository.getById(id).map { employeeService.mapEntityToDto(it) }.orElseThrow())
     }
 
     @PostMapping(URL)

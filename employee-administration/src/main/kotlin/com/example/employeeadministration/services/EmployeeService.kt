@@ -1,18 +1,15 @@
 package com.example.employeeadministration.services
 
-import com.example.employeeadministration.model.aggregates.Aggregate
-import com.example.employeeadministration.model.aggregates.EMPLOYEE_AGGREGATE
 import com.example.employeeadministration.model.aggregates.Employee
 import com.example.employeeadministration.model.dto.EmployeeDto
-import com.example.employeeadministration.model.events.Event
-import com.example.employeeadministration.model.events.EventType
-import com.example.employeeadministration.streams.EmployeeRepository
+import com.example.employeeadministration.streams.EmployeeRepositoryGlobal
+import com.example.employeeadministration.streams.EmployeeRepositoryLocal
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
 class EmployeeService(
-        val employeeRepository: EmployeeRepository,
+        val employeeRepository: EmployeeRepositoryGlobal,
         val eventProducer: EventProducer
 ): MappingService<Employee, EmployeeDto> {
 
@@ -34,7 +31,7 @@ class EmployeeService(
         if (employeeDto.id == null) {
             throw RuntimeException("Id required to update")
         }
-        val employee = employeeRepository.getEmployeeById(employeeDto.id).map {
+        val employee = employeeRepository.getById(employeeDto.id).map {
             if (it.firstname != employeeDto.firstname || it.lastname != employeeDto.lastname) {
                 it.changesName(employeeDto.firstname, employeeDto.lastname)
             }
@@ -63,7 +60,7 @@ class EmployeeService(
     }
 
     fun deleteEmployee(id: String) {
-        val employee = employeeRepository.getEmployeeById(id).map {
+        val employee = employeeRepository.getById(id).map {
             it.delete()
             eventProducer.produceAggregateEvent(it)
         }.orElseThrow()

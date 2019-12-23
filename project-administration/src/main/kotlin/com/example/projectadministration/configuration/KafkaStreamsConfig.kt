@@ -57,18 +57,17 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
 
     @Bean(name = [KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME])
     fun streamsConfiguration(): KafkaStreamsConfiguration {
-        // Get the hostname of this service to put as application server
+        // Get the containername of this service to put as application server
         // Setting this field allows us to query the complete application state of multiple instances via kafka
-        val hostname = InetAddress.getLocalHost().hostName
-        println("++++++++++++")
-        println(hostname)
-        println("++++++++++++")
+        val containerName = env.getProperty("CONTAINER_NAME", "localhost")
+        val containerNr = env.getProperty("CONTAINER_NR", "")
 
         val configs = mutableMapOf<String, Any>()
         configs[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = env.getProperty("KAFKA_URL", "localhost:9093")
         configs[StreamsConfig.APPLICATION_ID_CONFIG] = "project-administration"
         configs[StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG] = WallclockTimestampExtractor::class.java.name
-        configs[StreamsConfig.APPLICATION_SERVER_CONFIG] = "$hostname:8081"
+        configs[StreamsConfig.PROCESSING_GUARANTEE_CONFIG] = StreamsConfig.EXACTLY_ONCE
+        configs[StreamsConfig.APPLICATION_SERVER_CONFIG] = "$containerName${containerNrWithDot(containerNr)}:8080"
         return KafkaStreamsConfiguration(configs)
     }
 
@@ -97,5 +96,11 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
         )
     }
 
+    fun containerNrWithDot(nr: String): String {
+        if (nr != "") {
+            return ".$nr"
+        }
+        return nr
+    }
 
 }

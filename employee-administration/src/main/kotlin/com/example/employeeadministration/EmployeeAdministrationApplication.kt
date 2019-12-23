@@ -1,20 +1,10 @@
 package com.example.employeeadministration
 
-import com.example.employeeadministration.model.aggregates.EMPLOYEE_AGGREGATE
-import com.example.employeeadministration.model.aggregates.Employee
-import com.example.employeeadministration.model.events.Event
-import com.example.employeeadministration.model.events.EventType
 import com.example.employeeadministration.services.EventProducer
-import com.example.employeeadministration.streams.EmployeeRepository
-import org.apache.kafka.streams.KafkaStreams
+import com.example.employeeadministration.streams.EmployeeRepositoryLocal
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.context.annotation.Bean
-import org.springframework.kafka.config.StreamsBuilderFactoryBean
-import org.springframework.kafka.config.StreamsBuilderFactoryBeanCustomizer
-import java.math.BigDecimal
 
 @SpringBootApplication
 class EmployeeAdministrationApplication {
@@ -23,7 +13,7 @@ class EmployeeAdministrationApplication {
     lateinit var producer: EventProducer
 
     @Autowired
-    lateinit var repository: EmployeeRepository
+    lateinit var repository: EmployeeRepositoryLocal
 
 //    @Bean
 //    fun setStateListenerForTesting(): StreamsBuilderFactoryBeanCustomizer {
