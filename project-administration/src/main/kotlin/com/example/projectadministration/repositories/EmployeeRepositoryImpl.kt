@@ -1,17 +1,16 @@
-package com.example.employeeadministration.streams
+package com.example.projectadministration.repositories
 
-import com.example.employeeadministration.controller.RPC_URL
-import com.example.employeeadministration.model.aggregates.EMPLOYEE_AGGREGATE
-import com.example.employeeadministration.model.aggregates.Employee
+import com.example.projectadministration.model.employee.EMPLOYEE_AGGREGATE
+import com.example.projectadministration.model.employee.Employee
 import org.apache.kafka.streams.state.QueryableStoreTypes
-import org.apache.kafka.streams.state.StreamsMetadata
 import org.springframework.kafka.config.StreamsBuilderFactoryBean
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestTemplate
 import java.util.*
 
 @Service
-class EmployeeRepositoryLocal(val factory: StreamsBuilderFactoryBean) : EmployeeRepository {
+class EmployeeRepositoryImpl(
+        val factory: StreamsBuilderFactoryBean
+): EmployeeRepository {
 
     override fun getAll(): List<Employee> {
         val store = factory.kafkaStreams.store("$EMPLOYEE_AGGREGATE-store", QueryableStoreTypes.keyValueStore<String, Employee>())
@@ -25,12 +24,17 @@ class EmployeeRepositoryLocal(val factory: StreamsBuilderFactoryBean) : Employee
         return getAll().filter { !it.deleted }
     }
 
-    override fun getAllByDepartment(department: String): List<Employee> {
-        return getAllByDeletedFalse().filter { it.department == department }
+    override fun getAllByIdIn(ids: List<String>): List<Employee> {
+        return getAllByDeletedFalse().filter { ids.contains(it.id) }
     }
 
     override fun getById(id: String): Optional<Employee> {
-        return Optional.ofNullable(getAllByDeletedFalse().firstOrNull { it.id == id })
+        val employees = getAllByDeletedFalse()
+        return Optional.ofNullable(employees.firstOrNull { it.id == id })
+    }
+
+    override fun getAllByDepartment(department: String): List<Employee> {
+        return getAllByDeletedFalse().filter { it.department == department }
     }
 
 }

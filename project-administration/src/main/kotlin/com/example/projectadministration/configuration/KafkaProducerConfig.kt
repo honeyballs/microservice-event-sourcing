@@ -31,7 +31,7 @@ class KafkaProducerConfig {
 
     @Bean
     fun projectTopic(): NewTopic {
-        return NewTopic(PROJECT_AGGREGATE, 1, 1)
+        return NewTopic(PROJECT_AGGREGATE, 2, 1)
     }
 
     @Bean
@@ -52,9 +52,8 @@ class KafkaProducerConfig {
         val serializer = JsonSerializer<Event>(mapper)
         serializer.isAddTypeInfo = false
         val factory = DefaultKafkaProducerFactory<String, Event>(producerConfigs(), StringSerializer(), serializer)
-        val containerName = env.getProperty("CONTAINER_NAME", "localhost")
         val containerNr = env.getProperty("CONTAINER_NR", "")
-        factory.setTransactionIdPrefix("$containerName${containerNrWithDot(containerNr)}")
+        factory.setTransactionIdPrefix("employee-administration${containerNrWithDot(containerNr)}")
         return factory
     }
 

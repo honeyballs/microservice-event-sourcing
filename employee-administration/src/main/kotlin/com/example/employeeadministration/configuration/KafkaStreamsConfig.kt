@@ -47,7 +47,7 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
 
     @Bean
     fun employeeStoreTopic(): NewTopic {
-        return NewTopic("$EMPLOYEE_AGGREGATE-table", 1, 1)
+        return NewTopic("$EMPLOYEE_AGGREGATE-table", 2, 1)
     }
 
     @Bean(name = [KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME])
@@ -65,7 +65,7 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
     }
 
     @Bean
-    fun createTableTopicFromStream(builder: StreamsBuilder): KStream<String, Employee?>? {
+    fun createTableTopicFromStream(builder: StreamsBuilder): KStream<String, Employee?> {
         return builder.stream<String, Event>(EMPLOYEE_AGGREGATE, Consumed.with(Serdes.String(), eventSerde))
                 .groupByKey()
                 .aggregate(

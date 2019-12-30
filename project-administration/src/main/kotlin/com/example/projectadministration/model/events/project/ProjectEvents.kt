@@ -16,7 +16,7 @@ data class ProjectCreated(
         val description: String,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) val startDate: LocalDate,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) val projectedEndDate: LocalDate,
-        val employees: List<String>
+        val employees: Set<String>
 ) : Event() {
 
     init {

@@ -31,7 +31,7 @@ class KafkaProducerConfig {
 
     @Bean
     fun employeeTopic(): NewTopic {
-        return NewTopic(EMPLOYEE_AGGREGATE, 1, 1)
+        return NewTopic(EMPLOYEE_AGGREGATE, 2, 1)
     }
 
     @Bean

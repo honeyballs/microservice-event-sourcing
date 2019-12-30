@@ -2,8 +2,7 @@ package com.example.employeeadministration.services
 
 import com.example.employeeadministration.model.aggregates.Employee
 import com.example.employeeadministration.model.dto.EmployeeDto
-import com.example.employeeadministration.streams.EmployeeRepositoryGlobal
-import com.example.employeeadministration.streams.EmployeeRepositoryLocal
+import com.example.employeeadministration.repositories.EmployeeRepositoryGlobal
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -18,7 +17,8 @@ class EmployeeService(
                 employeeDto.firstname,
                 employeeDto.lastname,
                 employeeDto.address,
-                employeeDto.mail, employeeDto.iban,
+                employeeDto.mail,
+                employeeDto.iban,
                 employeeDto.department,
                 employeeDto.title,
                 employeeDto.hourlyRate
@@ -28,7 +28,7 @@ class EmployeeService(
     }
 
     fun updateEmployee(employeeDto: EmployeeDto): EmployeeDto {
-        if (employeeDto.id == null) {
+        if (employeeDto.id == null || employeeDto.id == "") {
             throw RuntimeException("Id required to update")
         }
         val employee = employeeRepository.getById(employeeDto.id).map {

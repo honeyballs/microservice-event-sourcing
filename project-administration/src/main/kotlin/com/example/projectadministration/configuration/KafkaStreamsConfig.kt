@@ -12,6 +12,7 @@ import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.common.utils.Bytes
+import org.apache.kafka.streams.KeyValue
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.kstream.*
@@ -52,27 +53,26 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
 
     @Bean
     fun projectStoreTopic(): NewTopic {
-        return NewTopic("$PROJECT_AGGREGATE-table", 1, 1)
+        return NewTopic("$PROJECT_AGGREGATE-table", 2, 1)
     }
 
     @Bean(name = [KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME])
     fun streamsConfiguration(): KafkaStreamsConfiguration {
-        // Get the containername of this service to put as application server
+        // Get the hostname of this service to put as application server
         // Setting this field allows us to query the complete application state of multiple instances via kafka
-        val containerName = env.getProperty("CONTAINER_NAME", "localhost")
-        val containerNr = env.getProperty("CONTAINER_NR", "")
+        val hostname = InetAddress.getLocalHost().hostName
 
         val configs = mutableMapOf<String, Any>()
         configs[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = env.getProperty("KAFKA_URL", "localhost:9093")
         configs[StreamsConfig.APPLICATION_ID_CONFIG] = "project-administration"
         configs[StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG] = WallclockTimestampExtractor::class.java.name
         configs[StreamsConfig.PROCESSING_GUARANTEE_CONFIG] = StreamsConfig.EXACTLY_ONCE
-        configs[StreamsConfig.APPLICATION_SERVER_CONFIG] = "$containerName${containerNrWithDot(containerNr)}:8080"
+        configs[StreamsConfig.APPLICATION_SERVER_CONFIG] = "$hostname:8081"
         return KafkaStreamsConfiguration(configs)
     }
 
     @Bean
-    fun createTableTopicFromStream(builder: StreamsBuilder): KStream<String, Project?>? {
+    fun createTableTopicFromStream(builder: StreamsBuilder): KStream<String, Project?> {
         return builder.stream<String, Event>(PROJECT_AGGREGATE, Consumed.with(Serdes.String(), eventSerde))
                 .groupByKey()
                 .aggregate(
@@ -94,13 +94,6 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
                 Consumed.with(Serdes.String(), employeeSerde),
                 Materialized.`as`("$EMPLOYEE_AGGREGATE-store")
         )
-    }
-
-    fun containerNrWithDot(nr: String): String {
-        if (nr != "") {
-            return ".$nr"
-        }
-        return nr
     }
 
 }

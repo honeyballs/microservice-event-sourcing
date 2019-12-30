@@ -1,7 +1,7 @@
 package com.example.employeeadministration.controller
 
 import com.example.employeeadministration.model.aggregates.Employee
-import com.example.employeeadministration.streams.EmployeeRepositoryLocal
+import com.example.employeeadministration.repositories.EmployeeRepositoryLocal
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok
 import org.springframework.web.bind.annotation.GetMapping
@@ -34,7 +34,7 @@ class KafkaRPCController(val employeeRepository: EmployeeRepositoryLocal) {
         return ok(employeeRepository.getAllByDeletedFalse())
     }
 
-    @GetMapping("$RPC_URL/employee/{department}")
+    @GetMapping("$RPC_URL/employee/department/{department}")
     fun getAllOfDepartment(@PathVariable("department") department: String): ResponseEntity<List<Employee>> {
         return ok(employeeRepository.getAllByDepartment(department))
     }
