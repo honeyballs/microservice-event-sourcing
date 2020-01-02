@@ -30,7 +30,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT,LOCALHOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_CREATE_TOPICS: "streams-plaintext-input:1:1, streams-pipe-output:1:1, employee:1:1, project:1:1, worktime-entry:1:1"
+      KAFKA_CREATE_TOPICS: "streams-plaintext-input:1:1, streams-pipe-output:1:1"
     networks: 
       - backend  
 
@@ -48,6 +48,22 @@ services:
       replicas: 2
     networks: 
       - backend     
+
+
+  project-administration:
+    image: honeyball/sourcing-project:latest
+    environment: 
+      - KAFKA_URL=kafka:9092
+      - CONTAINER_NR={{ .Task.Slot }} 
+    ports: 
+      - "8081:8081"
+    depends_on: 
+      - zookeeper
+      - kafka
+    deploy:
+      replicas: 2
+    networks: 
+      - backend      
       
 networks: 
   backend:

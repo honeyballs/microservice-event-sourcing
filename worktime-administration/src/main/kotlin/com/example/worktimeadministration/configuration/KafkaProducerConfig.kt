@@ -1,7 +1,7 @@
-package com.example.projectadministration.configuration
+package com.example.worktimeadministration.configuration
 
-import com.example.projectadministration.model.aggregates.PROJECT_AGGREGATE
-import com.example.projectadministration.model.events.Event
+import com.example.worktimeadministration.model.aggregates.WORKTIME_AGGREGATE
+import com.example.worktimeadministration.model.events.Event
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.producer.ProducerConfig
@@ -30,8 +30,8 @@ class KafkaProducerConfig {
     lateinit var env: Environment
 
     @Bean
-    fun projectTopic(): NewTopic {
-        return NewTopic(PROJECT_AGGREGATE, 2, 1)
+    fun worktimeTopic(): NewTopic {
+        return NewTopic(WORKTIME_AGGREGATE, 2, 1)
     }
 
     @Bean
@@ -53,7 +53,7 @@ class KafkaProducerConfig {
         serializer.isAddTypeInfo = false
         val factory = DefaultKafkaProducerFactory<String, Event>(producerConfigs(), StringSerializer(), serializer)
         val containerNr = env.getProperty("CONTAINER_NR", "")
-        factory.setTransactionIdPrefix("project-administration${containerNrWithDot(containerNr)}")
+        factory.setTransactionIdPrefix("worktime-administration${containerNrWithDot(containerNr)}")
         return factory
     }
 

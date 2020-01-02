@@ -1,12 +1,14 @@
-package com.example.projectadministration.configuration
+package com.example.worktimeadministration.configuration
 
 
-import com.example.projectadministration.model.aggregates.PROJECT_AGGREGATE
-import com.example.projectadministration.model.aggregates.Project
-import com.example.projectadministration.model.employee.EMPLOYEE_AGGREGATE
-import com.example.projectadministration.model.employee.Employee
-import com.example.projectadministration.model.events.Event
-import com.example.projectadministration.model.events.project.handleProjectEvent
+import com.example.worktimeadministration.model.aggregates.WORKTIME_AGGREGATE
+import com.example.worktimeadministration.model.aggregates.WorktimeEntry
+import com.example.worktimeadministration.model.employee.EMPLOYEE_AGGREGATE
+import com.example.worktimeadministration.model.employee.Employee
+import com.example.worktimeadministration.model.events.Event
+import com.example.worktimeadministration.model.events.worktime.handleWorktimeEvent
+import com.example.worktimeadministration.model.project.PROJECT_AGGREGATE
+import com.example.worktimeadministration.model.project.Project
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.common.serialization.Serde
@@ -39,6 +41,7 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
     lateinit var eventSerde: Serde<Event>
     lateinit var employeeSerde: Serde<Employee>
     lateinit var projectSerde: Serde<Project>
+    lateinit var worktimeSerde: Serde<WorktimeEntry>
 
     init {
         val eventDeserializer = JsonDeserializer(Event::class.java, mapper)
@@ -47,14 +50,17 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
         employeeDeserializer.setUseTypeHeaders(false)
         val projectDeserializer = JsonDeserializer(Project::class.java, mapper)
         projectDeserializer.setUseTypeHeaders(false)
+        val worktimeDeserializer = JsonDeserializer(WorktimeEntry::class.java, mapper)
+        worktimeDeserializer.setUseTypeHeaders(false)
         eventSerde = Serdes.serdeFrom(JsonSerializer<Event>(mapper), eventDeserializer)
         employeeSerde = Serdes.serdeFrom(JsonSerializer<Employee>(mapper), employeeDeserializer)
         projectSerde = Serdes.serdeFrom(JsonSerializer<Project>(mapper), projectDeserializer)
+        worktimeSerde = Serdes.serdeFrom(JsonSerializer<WorktimeEntry>(mapper), worktimeDeserializer)
     }
 
     @Bean
     fun projectStoreTopic(): NewTopic {
-        return NewTopic("$PROJECT_AGGREGATE-table", 2, 1)
+        return NewTopic("$WORKTIME_AGGREGATE-table", 2, 1)
     }
 
     @Bean(name = [KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME])
@@ -65,27 +71,26 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
 
         val configs = mutableMapOf<String, Any>()
         configs[StreamsConfig.BOOTSTRAP_SERVERS_CONFIG] = env.getProperty("KAFKA_URL", "localhost:9093")
-        configs[StreamsConfig.APPLICATION_ID_CONFIG] = "project-administration"
+        configs[StreamsConfig.APPLICATION_ID_CONFIG] = "worktime-administration"
         configs[StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG] = WallclockTimestampExtractor::class.java.name
         configs[StreamsConfig.PROCESSING_GUARANTEE_CONFIG] = StreamsConfig.EXACTLY_ONCE
-        configs[StreamsConfig.APPLICATION_SERVER_CONFIG] = "$hostname:8081"
+        configs[StreamsConfig.APPLICATION_SERVER_CONFIG] = "$hostname:8082"
         return KafkaStreamsConfiguration(configs)
     }
 
     @Bean
-    fun createTableTopicFromStream(builder: StreamsBuilder): KStream<String, Project?> {
-        return builder.stream<String, Event>(PROJECT_AGGREGATE, Consumed.with(Serdes.String(), eventSerde))
+    fun createTableTopicFromStream(builder: StreamsBuilder): KStream<String, WorktimeEntry?> {
+        return builder.stream<String, Event>(WORKTIME_AGGREGATE, Consumed.with(Serdes.String(), eventSerde))
                 .groupByKey()
                 .aggregate(
                         { null },
-                        { key: String, value: Event, aggregate: Project? -> handleProjectEvent(value, aggregate) },
-                        Materialized.`as`<String, Project, KeyValueStore<Bytes, ByteArray>>("$PROJECT_AGGREGATE-store")
+                        { key: String, value: Event, aggregate: WorktimeEntry? -> handleWorktimeEvent(value, aggregate) },
+                        Materialized.`as`<String, WorktimeEntry, KeyValueStore<Bytes, ByteArray>>("$WORKTIME_AGGREGATE-store")
                                 .withKeySerde(Serdes.String())
-                                .withValueSerde(projectSerde)
+                                .withValueSerde(worktimeSerde)
                 )
                 .toStream()
-                .peek(ForeachAction { key: String , value: Project  -> println(value.toString()) })
-                .through("$PROJECT_AGGREGATE-table", Produced.with(Serdes.String(), projectSerde))
+                .through("$WORKTIME_AGGREGATE-table", Produced.with(Serdes.String(), worktimeSerde))
     }
 
     @Bean
@@ -94,6 +99,15 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
                 "$EMPLOYEE_AGGREGATE-table",
                 Consumed.with(Serdes.String(), employeeSerde),
                 Materialized.`as`("$EMPLOYEE_AGGREGATE-store")
+        )
+    }
+
+    @Bean
+    fun createProjectStore(builder: StreamsBuilder): GlobalKTable<String, Project> {
+        return builder.globalTable(
+                "$PROJECT_AGGREGATE-table",
+                Consumed.with(Serdes.String(), projectSerde),
+                Materialized.`as`("$PROJECT_AGGREGATE-store")
         )
     }
 

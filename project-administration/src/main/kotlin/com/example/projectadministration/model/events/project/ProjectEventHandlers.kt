@@ -39,32 +39,26 @@ fun handleCreateEvent(event: ProjectCreated): Project {
     )
 }
 
-fun handleDescriptionUpdatedEvent(event: ProjectDescriptionChanged, pro: Project): Project {
+fun handleDescriptionUpdatedEvent(event: ProjectDescriptionChanged, pro: Project) {
     pro.description = event.description
-    return pro
 }
 
-fun handleDelayedEvent(event: ProjectDelayed, pro: Project): Project {
+fun handleDelayedEvent(event: ProjectDelayed, pro: Project) {
     pro.projectedEndDate = event.projectedEndDate
-    return pro
 }
 
-fun handleEmployeeAddedEvent(event: ProjectEmployeeAdded, pro: Project): Project {
+fun handleEmployeeAddedEvent(event: ProjectEmployeeAdded, pro: Project) {
     pro.employees = pro.employees.plus(event.employee)
-    return pro
 }
 
-fun handleEmployeeRemovedEvent(event: ProjectEmployeeRemoved, pro: Project): Project {
+fun handleEmployeeRemovedEvent(event: ProjectEmployeeRemoved, pro: Project) {
     pro.employees = pro.employees.minus(event.employee)
-    return pro
 }
 
-fun handleProjectFinishedEvent(event: ProjectFinished, pro: Project): Project {
+fun handleProjectFinishedEvent(event: ProjectFinished, pro: Project) {
     pro.endDate = event.endDate
-    return pro
 }
 
-fun handleDeletedEvent(event: ProjectDeleted, pro: Project): Project {
+fun handleDeletedEvent(event: ProjectDeleted, pro: Project) {
     pro.deleted = true
-    return pro
 }

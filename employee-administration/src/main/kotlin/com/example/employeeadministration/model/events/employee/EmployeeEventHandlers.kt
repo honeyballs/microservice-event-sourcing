@@ -48,42 +48,34 @@ fun handleFirstnameEvent(event: EmployeeChangedFirstName, employee: Employee): E
     return employee
 }
 
-fun handleLastnameEvent(event: EmployeeChangedLastName, employee: Employee): Employee {
+fun handleLastnameEvent(event: EmployeeChangedLastName, employee: Employee) {
     employee.lastname = event.lastname
-    return employee
 }
 
-fun handleMovedEvent(event: EmployeeMoved, employee: Employee): Employee {
+fun handleMovedEvent(event: EmployeeMoved, employee: Employee) {
     employee.address = event.address
-    return employee
 }
 
-fun handleChangedMailEvent(event: EmployeeChangedMail, employee: Employee): Employee {
+fun handleChangedMailEvent(event: EmployeeChangedMail, employee: Employee) {
     employee.mail = event.mail
-    return employee
 }
 
-fun handleChangedBankingEvent(event: EmployeeChangedBanking, employee: Employee): Employee {
+fun handleChangedBankingEvent(event: EmployeeChangedBanking, employee: Employee) {
     employee.iban = event.iban
-    return employee
 }
 
-fun handleChangedDepartmentEvent(event: EmployeeChangedDepartment, employee: Employee): Employee {
+fun handleChangedDepartmentEvent(event: EmployeeChangedDepartment, employee: Employee) {
     employee.department = event.department
-    return employee
 }
 
-fun handleChangedTitleEvent(event: EmployeeChangedTitle, employee: Employee): Employee {
+fun handleChangedTitleEvent(event: EmployeeChangedTitle, employee: Employee) {
     employee.title = event.title
-    return employee
 }
 
-fun handleAdjustedRateEvent(event: EmployeeRateAdjusted, employee: Employee): Employee {
+fun handleAdjustedRateEvent(event: EmployeeRateAdjusted, employee: Employee) {
     employee.hourlyRate = event.rate
-    return employee
 }
 
-fun handleDeletedEvent(event: EmployeeDeleted, employee: Employee): Employee {
+fun handleDeletedEvent(event: EmployeeDeleted, employee: Employee) {
     employee.deleted = true
-    return employee
 }
