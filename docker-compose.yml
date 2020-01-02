@@ -63,7 +63,22 @@ services:
     deploy:
       replicas: 2
     networks: 
-      - backend      
+      - backend     
+      
+  worktime-administration:
+    image: honeyball/sourcing-worktime:latest
+    environment: 
+      - KAFKA_URL=kafka:9092
+      - CONTAINER_NR={{ .Task.Slot }} 
+    ports: 
+      - "8082:8082"
+    depends_on: 
+      - zookeeper
+      - kafka
+    deploy:
+      replicas: 2
+    networks: 
+      - backend 
       
 networks: 
   backend:
