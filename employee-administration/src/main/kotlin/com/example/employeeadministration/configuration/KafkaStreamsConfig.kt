@@ -61,6 +61,7 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
         configs[StreamsConfig.APPLICATION_ID_CONFIG] = "employee-administration"
         configs[StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG] = WallclockTimestampExtractor::class.java.name
         configs[StreamsConfig.APPLICATION_SERVER_CONFIG] = "$hostname:8080"
+        configs[StreamsConfig.PROCESSING_GUARANTEE_CONFIG] = StreamsConfig.EXACTLY_ONCE
         return KafkaStreamsConfiguration(configs)
     }
 
