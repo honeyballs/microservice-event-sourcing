@@ -36,4 +36,8 @@ data class UsedEmployeeVacationHours(
         registerEvent(UsedHoursDeleted())
     }
 
+    override fun toString(): String {
+        return "Vacation Entry - Id: $id, Hours: $hours"
+    }
+
 }

@@ -106,7 +106,9 @@ class WorktimeEntry(
         }
     }
 
-
+    override fun toString(): String {
+        return "Worktime Entry - Id: $id, Description: $description"
+    }
 }
 
 enum class EntryType(type: String) {

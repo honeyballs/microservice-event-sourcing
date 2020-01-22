@@ -21,7 +21,7 @@ class EmployeeService(
                 entity.lastname,
                 departmentRepository.getByDepartmentId(entity.department).map { it.name }.orElseThrow(),
                 positionRepository.getByPositionId(entity.position).map { it.title }.orElseThrow(),
-                entity.companyMail
+                entity.mail
         )
     }
 

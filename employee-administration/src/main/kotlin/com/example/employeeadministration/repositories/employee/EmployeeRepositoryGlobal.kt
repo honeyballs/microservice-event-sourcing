@@ -34,18 +34,20 @@ class EmployeeRepositoryGlobal(
      * Query all instances which keep the same store.
      * Also queries itself, so no combining of values is necessary afterwards.
      */
-    private fun getGlobalList(url: String): List<Employee> {
+    private fun getGlobalList(affix: String): List<Employee> {
+        val encodedAffix = affix.replace(" ", "%20")
         return factory.kafkaStreams.allMetadataForStore("$EMPLOYEE_AGGREGATE-store")
                 .flatMap { metadata ->
-                    val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$url"
+                    val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$encodedAffix"
                     println(url)
                     RestTemplate().getForObject(url, arrayOf<Employee>()::class.java)?.toList() ?: emptyList<Employee>()
                 }
     }
 
-    private fun getGlobalInstance(url: String, key: String): Optional<Employee> {
+    private fun getGlobalInstance(affix: String, key: String): Optional<Employee> {
+        val encodedAffix = affix.replace(" ", "%20")
         val metadata = factory.kafkaStreams.metadataForKey("$EMPLOYEE_AGGREGATE-store", key, Serdes.String().serializer())
-        val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$url"
+        val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$encodedAffix"
         println(url)
         val employee = RestTemplate().getForObject(url, Employee::class.java)
         if (employee != null) {

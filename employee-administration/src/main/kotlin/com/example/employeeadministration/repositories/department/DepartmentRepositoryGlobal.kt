@@ -34,18 +34,20 @@ class DepartmentRepositoryGlobal(val factory: StreamsBuilderFactoryBean): Depart
      * Query all instances which keep the same store.
      * Also queries itself, so no combining of values is necessary afterwards.
      */
-    private fun getGlobalList(url: String): List<Department> {
+    private fun getGlobalList(affix: String): List<Department> {
+        val encodedAffix = affix.replace(" ", "%20")
         return factory.kafkaStreams.allMetadataForStore("$DEPARTMENT_AGGREGATE-store")
                 .flatMap { metadata ->
-                    val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$url"
+                    val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$encodedAffix"
                     println(url)
                     RestTemplate().getForObject(url, arrayOf<Department>()::class.java)?.toList() ?: emptyList<Department>()
                 }
     }
 
-    private fun getGlobalInstanceByKey(url: String, key: String): Optional<Department> {
+    private fun getGlobalInstanceByKey(affix: String, key: String): Optional<Department> {
+        val encodedAffix = affix.replace(" ", "%20")
         val metadata = factory.kafkaStreams.metadataForKey("$DEPARTMENT_AGGREGATE-store", key, Serdes.String().serializer())
-        val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$url"
+        val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$encodedAffix"
         println(url)
         val department = RestTemplate().getForObject(url, Department::class.java)
         if (department != null) {
@@ -54,11 +56,12 @@ class DepartmentRepositoryGlobal(val factory: StreamsBuilderFactoryBean): Depart
         return Optional.empty<Department>()
     }
 
-    private fun getGlobalInstance(url: String): Optional<Department> {
+    private fun getGlobalInstance(affix: String): Optional<Department> {
+        val encodedAffix = affix.replace(" ", "%20")
         var result = Optional.empty<Department>()
         val allMetadata = factory.kafkaStreams.allMetadataForStore("$DEPARTMENT_AGGREGATE-store")
         for (metadata in allMetadata) {
-            val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$url"
+            val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$encodedAffix"
             println(url)
             val department: Department? = RestTemplate().getForObject(url, Department::class.java)
             if (department != null) {

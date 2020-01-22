@@ -34,18 +34,20 @@ class PositionRepositoryGlobal(val factory: StreamsBuilderFactoryBean): Position
      * Query all instances which keep the same store.
      * Also queries itself, so no combining of values is necessary afterwards.
      */
-    private fun getGlobalList(url: String): List<Position> {
+    private fun getGlobalList(affix: String): List<Position> {
+        val encodedAffix = affix.replace(" ", "%20")
         return factory.kafkaStreams.allMetadataForStore("$POSITION_AGGREGATE-store")
                 .flatMap { metadata ->
-                    val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$url"
+                    val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$encodedAffix"
                     println(url)
                     RestTemplate().getForObject(url, arrayOf<Position>()::class.java)?.toList() ?: emptyList<Position>()
                 }
     }
 
-    private fun getGlobalInstanceByKey(url: String, key: String): Optional<Position> {
+    private fun getGlobalInstanceByKey(affix: String, key: String): Optional<Position> {
+        val encodedAffix = affix.replace(" ", "%20")
         val metadata = factory.kafkaStreams.metadataForKey("$POSITION_AGGREGATE-store", key, Serdes.String().serializer())
-        val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$url"
+        val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$encodedAffix"
         println(url)
         val position = RestTemplate().getForObject(url, Position::class.java)
         if (position != null) {
@@ -54,11 +56,12 @@ class PositionRepositoryGlobal(val factory: StreamsBuilderFactoryBean): Position
         return Optional.empty<Position>()
     }
 
-    private fun getGlobalInstance(url: String): Optional<Position> {
+    private fun getGlobalInstance(affix: String): Optional<Position> {
+        val encodedAffix = affix.replace(" ", "%20")
         var result = Optional.empty<Position>()
         val allMetadata = factory.kafkaStreams.allMetadataForStore("$POSITION_AGGREGATE-store")
         for (metadata in allMetadata) {
-            val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$url"
+            val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$encodedAffix"
             println(url)
             val position: Position? = RestTemplate().getForObject(url, Position::class.java)
             if (position != null) {

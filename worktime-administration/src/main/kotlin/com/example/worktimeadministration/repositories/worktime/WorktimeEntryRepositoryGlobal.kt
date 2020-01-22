@@ -47,19 +47,21 @@ class WorktimeEntryRepositoryGlobal(
      * Query all instances which keep the same store.
      * Also queries itself if required, so no combining of values is necessary afterwards.
      */
-    private fun getGlobalList(url: String): List<WorktimeEntry> {
+    private fun getGlobalList(affix: String): List<WorktimeEntry> {
+        val encodedAffix = affix.replace(" ", "%20")
         return factory.kafkaStreams.allMetadataForStore("$WORKTIME_AGGREGATE-store")
                 .flatMap { metadata ->
-                    val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$url"
+                    val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$encodedAffix"
                     println(url)
                     RestTemplate().getForObject(url, arrayOf<WorktimeEntry>()::class.java)?.toList()
                             ?: emptyList<WorktimeEntry>()
                 }
     }
 
-    private fun getGlobalInstance(url: String, key: String): Optional<WorktimeEntry> {
+    private fun getGlobalInstance(affix: String, key: String): Optional<WorktimeEntry> {
+        val encodedAffix = affix.replace(" ", "%20")
         val metadata = factory.kafkaStreams.metadataForKey("$WORKTIME_AGGREGATE-store", key, Serdes.String().serializer())
-        val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$url"
+        val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$encodedAffix"
         println(url)
         val entry = RestTemplate().getForObject(url, WorktimeEntry::class.java)
         if (entry != null) {

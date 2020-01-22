@@ -28,21 +28,23 @@ class UsedHoursRepositoryGlobal(
      * Query all instances which keep the same store.
      * Also queries itself if required, so no combining of values is necessary afterwards.
      */
-    private fun getGlobalList(url: String): List<UsedEmployeeVacationHours> {
+    private fun getGlobalList(affix: String): List<UsedEmployeeVacationHours> {
+        val encodedAffix = affix.replace(" ", "%20")
         return factory.kafkaStreams.allMetadataForStore("$VACATION_AGGREGATE-store")
                 .flatMap { metadata ->
-                    val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$url"
+                    val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$encodedAffix"
                     println(url)
                     RestTemplate().getForObject(url, arrayOf<UsedEmployeeVacationHours>()::class.java)?.toList()
                             ?: emptyList<UsedEmployeeVacationHours>()
                 }
     }
 
-    private fun getGlobalInstance(url: String): Optional<UsedEmployeeVacationHours> {
+    private fun getGlobalInstance(affix: String): Optional<UsedEmployeeVacationHours> {
+        val encodedAffix = affix.replace(" ", "%20")
         var result = Optional.empty<UsedEmployeeVacationHours>()
         val allMetadata = factory.kafkaStreams.allMetadataForStore("$VACATION_AGGREGATE-store")
         for (metadata in allMetadata) {
-            val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$url"
+            val url = "http://${metadata.host()}:${metadata.port()}/$RPC_URL$encodedAffix"
             println(url)
             val entry: UsedEmployeeVacationHours? = RestTemplate().getForObject(url, UsedEmployeeVacationHours::class.java)
             if (entry != null) {

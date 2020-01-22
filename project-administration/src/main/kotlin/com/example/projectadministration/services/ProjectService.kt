@@ -82,7 +82,7 @@ class ProjectService(
                 entity.startDate,
                 entity.projectedEndDate,
                 entity.endDate,
-                employees.map { ProjectEmployeeDto(it.id, it.firstname, it.lastname, it.companyMail) }.toSet(),
+                employees.map { ProjectEmployeeDto(it.id, it.firstname, it.lastname, it.mail) }.toSet(),
                 ProjectCustomerDto(customer.id, customer.customerName)
         )
     }

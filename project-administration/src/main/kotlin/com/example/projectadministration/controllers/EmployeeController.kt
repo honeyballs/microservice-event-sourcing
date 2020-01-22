@@ -21,6 +21,7 @@ class EmployeeController(
 
     @GetMapping(employeeUrl)
     fun getAllEmployees(): ResponseEntity<List<EmployeeDto>> {
+        println("Employees requested")
         return ok(employeeRepository.getAllByDeletedFalse().map { employeeService.mapEntityToDto(it) })
     }
 

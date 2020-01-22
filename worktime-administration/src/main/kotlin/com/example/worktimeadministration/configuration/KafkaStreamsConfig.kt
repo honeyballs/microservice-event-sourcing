@@ -113,6 +113,7 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
                                 .withValueSerde(usedVacationSerde)
                 )
                 .toStream()
+                .peek(ForeachAction { key: String , value: UsedEmployeeVacationHours  -> println(value.toString()) })
                 .through("$VACATION_AGGREGATE-table", Produced.with(Serdes.String(), usedVacationSerde))
     }
 
@@ -128,6 +129,7 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
                                 .withValueSerde(worktimeSerde)
                 )
                 .toStream()
+                .peek(ForeachAction { key: String , value: WorktimeEntry  -> println(value.toString()) })
                 .through("$WORKTIME_AGGREGATE-table", Produced.with(Serdes.String(), worktimeSerde))
     }
 
