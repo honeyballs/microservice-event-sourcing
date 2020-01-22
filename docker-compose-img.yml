@@ -1,0 +1,85 @@
+version: '3.7'
+services:
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    environment: 
+      - SLOT={{ .Task.Slot }} 
+      - HOSTNAME={{ .Service.Name }}
+    networks: 
+      - backend  
+
+  kafka:
+    image: wurstmeister/kafka:2.12-2.3.0
+    deploy:
+      mode: global
+    ports: 
+      - target: 9092
+        published: 9092
+        protocol: tcp
+        mode: host
+      - target: 9093
+        published: 9093
+        protocol: tcp
+        mode: host
+    environment:
+      KAFKA_LISTENERS: INSIDE://:29092,OUTSIDE://:9092,LOCALHOST://:9093
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:29092,OUTSIDE://:9092,LOCALHOST://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT,LOCALHOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: "streams-plaintext-input:1:1, streams-pipe-output:1:1"
+    networks: 
+      - backend  
+
+  employee-administration:
+    image: honeyball/sourcing-employee:latest
+    environment: 
+      - KAFKA_URL=kafka:9092
+      - CONTAINER_NR={{ .Task.Slot }} 
+    ports: 
+      - "8080:8080"
+    depends_on: 
+      - zookeeper
+      - kafka
+    deploy:
+      replicas: 2
+    networks: 
+      - backend     
+
+
+  project-administration:
+    image: honeyball/sourcing-project:latest
+    environment: 
+      - KAFKA_URL=kafka:9092
+      - CONTAINER_NR={{ .Task.Slot }} 
+    ports: 
+      - "8090:8090"
+    depends_on: 
+      - zookeeper
+      - kafka
+    deploy:
+      replicas: 2
+    networks: 
+      - backend     
+      
+  worktime-administration:
+    image: honeyball/sourcing-worktime:latest
+    environment: 
+      - KAFKA_URL=kafka:9092
+      - CONTAINER_NR={{ .Task.Slot }} 
+    ports: 
+      - "8085:8085"
+    depends_on: 
+      - zookeeper
+      - kafka
+    deploy:
+      replicas: 2
+    networks: 
+      - backend 
+      
+networks: 
+  backend:
+    driver: overlay        

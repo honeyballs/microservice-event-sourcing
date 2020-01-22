@@ -1,7 +1,10 @@
 package com.example.worktimeadministration.controllers
 
+import com.example.worktimeadministration.model.aggregates.UsedEmployeeVacationHours
 import com.example.worktimeadministration.model.aggregates.WorktimeEntry
-import com.example.worktimeadministration.repositories.WorktimeEntryRepositoryLocal
+import com.example.worktimeadministration.repositories.worktime.UsedHoursRepository
+import com.example.worktimeadministration.repositories.worktime.UsedHoursRepositoryLocal
+import com.example.worktimeadministration.repositories.worktime.WorktimeEntryRepositoryLocal
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok
 import org.springframework.web.bind.annotation.GetMapping
@@ -12,7 +15,10 @@ import java.time.Month
 const val RPC_URL = "rpc"
 
 @RestController
-class KafkaRPCController(val worktimeEntryRepository: WorktimeEntryRepositoryLocal) {
+class KafkaRPCController(
+        val worktimeEntryRepository: WorktimeEntryRepositoryLocal,
+        val usedHoursRepository: UsedHoursRepositoryLocal
+) {
 
     @GetMapping("$RPC_URL/worktime")
     fun getAllEntries(): ResponseEntity<List<WorktimeEntry>> {
@@ -21,7 +27,7 @@ class KafkaRPCController(val worktimeEntryRepository: WorktimeEntryRepositoryLoc
 
     @GetMapping("$RPC_URL/worktime/{key}")
     fun getEntryByKey(@PathVariable("key") key: String): ResponseEntity<WorktimeEntry> {
-        return ok(worktimeEntryRepository.getById(key).orElseThrow())
+        return ok(worktimeEntryRepository.getById(key).orElse(null))
     }
 
     @GetMapping("$RPC_URL/worktime/not-deleted")
@@ -47,6 +53,18 @@ class KafkaRPCController(val worktimeEntryRepository: WorktimeEntryRepositoryLoc
     @GetMapping("$RPC_URL/worktime/month/{month}")
     fun getAllOfMonth(@PathVariable("month") month: Int): ResponseEntity<List<WorktimeEntry>> {
         return ok(worktimeEntryRepository.getAllOfMonth(Month.of(month)))
+    }
+
+    // USED HOURS ENDPOINT
+
+    @GetMapping("$RPC_URL/used")
+    fun getAllHoursEntries(): ResponseEntity<List<UsedEmployeeVacationHours>> {
+        return ok(usedHoursRepository.getAll())
+    }
+
+    @GetMapping("$RPC_URL/used/{employee}")
+    fun getHoursEntryByEmployeeKey(@PathVariable("employee") employee: String): ResponseEntity<UsedEmployeeVacationHours> {
+        return ok(usedHoursRepository.getByEmployeeIdAndDeletedFalse(employee).orElse(null))
     }
 
 }

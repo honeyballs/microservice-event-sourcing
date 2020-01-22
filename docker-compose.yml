@@ -5,11 +5,6 @@ services:
     image: wurstmeister/zookeeper
     ports:
       - "2181:2181"
-    environment: 
-      - SLOT={{ .Task.Slot }} 
-      - HOSTNAME={{ .Service.Name }}
-    networks: 
-      - backend  
 
   kafka:
     image: wurstmeister/kafka:2.12-2.3.0
@@ -31,8 +26,6 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CREATE_TOPICS: "streams-plaintext-input:1:1, streams-pipe-output:1:1"
-    networks: 
-      - backend  
 
   employee-administration:
     image: honeyball/sourcing-employee:latest
@@ -43,11 +36,7 @@ services:
       - "8080:8080"
     depends_on: 
       - zookeeper
-      - kafka
-    deploy:
-      replicas: 2
-    networks: 
-      - backend     
+      - kafka  
 
 
   project-administration:
@@ -56,14 +45,10 @@ services:
       - KAFKA_URL=kafka:9092
       - CONTAINER_NR={{ .Task.Slot }} 
     ports: 
-      - "8081:8081"
+      - "8090:8090"
     depends_on: 
       - zookeeper
-      - kafka
-    deploy:
-      replicas: 2
-    networks: 
-      - backend     
+      - kafka    
       
   worktime-administration:
     image: honeyball/sourcing-worktime:latest
@@ -71,15 +56,8 @@ services:
       - KAFKA_URL=kafka:9092
       - CONTAINER_NR={{ .Task.Slot }} 
     ports: 
-      - "8082:8082"
+      - "8085:8085"
     depends_on: 
       - zookeeper
       - kafka
-    deploy:
-      replicas: 2
-    networks: 
-      - backend 
-      
-networks: 
-  backend:
-    driver: overlay        
+            

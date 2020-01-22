@@ -15,9 +15,8 @@ fun handleWorktimeEvent(event: Event, entry: WorktimeEntry?): WorktimeEntry {
         return e
     } else {
         when (event) {
-            is WorktimeSetTime -> handleTimeSetEvent(event, e)
-            is WorktimeProjectSet -> handleProjectSetEvent(event, e)
-            is WorktimeDescriptionSet -> handleDescriptionSetEvent(event, e)
+            is WorktimeProjectChanged -> handleProjectChangedEvent(event, e)
+            is WorktimeDescriptionChanged -> handleDescriptionChangedEvent(event, e)
             is WorktimeStarttimeAdjusted -> handleAdjustStartTimeEvent(event, e)
             is WorktimeEndtimeAdjusted -> handleAdjustEndTimeEvent(event, e)
             is WorktimePauseAdjusted -> handleAdjustPauseEvent(event, e)
@@ -35,21 +34,16 @@ fun handleEntryCreatedEvent(event: WorktimeCreated): WorktimeEntry {
             event.projectId,
             event.employeeId,
             event.description,
+            event.entryType,
             event.worktimeId
     )
 }
 
-fun handleTimeSetEvent(event: WorktimeSetTime, entry: WorktimeEntry) {
-    entry.startTime = event.startTime
-    entry.endTime = event.endTime
-    entry.pauseTimeInMinutes = event.pause
-}
-
-fun handleProjectSetEvent(event: WorktimeProjectSet, entry: WorktimeEntry) {
+fun handleProjectChangedEvent(event: WorktimeProjectChanged, entry: WorktimeEntry) {
     entry.project = event.projectId
 }
 
-fun handleDescriptionSetEvent(event: WorktimeDescriptionSet, entry: WorktimeEntry) {
+fun handleDescriptionChangedEvent(event: WorktimeDescriptionChanged, entry: WorktimeEntry) {
     entry.description = event.description
 }
 

@@ -1,7 +1,7 @@
 package com.example.employeeadministration
 
 import com.example.employeeadministration.services.EventProducer
-import com.example.employeeadministration.repositories.EmployeeRepositoryLocal
+import com.example.employeeadministration.repositories.employee.EmployeeRepositoryLocal
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

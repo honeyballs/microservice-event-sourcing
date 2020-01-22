@@ -1,20 +1,23 @@
 package com.example.worktimeadministration.configuration
 
 
+import com.example.worktimeadministration.model.aggregates.UsedEmployeeVacationHours
+import com.example.worktimeadministration.model.aggregates.VACATION_AGGREGATE
 import com.example.worktimeadministration.model.aggregates.WORKTIME_AGGREGATE
 import com.example.worktimeadministration.model.aggregates.WorktimeEntry
-import com.example.worktimeadministration.model.employee.EMPLOYEE_AGGREGATE
-import com.example.worktimeadministration.model.employee.Employee
+import com.example.worktimeadministration.model.aggregates.employee.EMPLOYEE_AGGREGATE
+import com.example.worktimeadministration.model.aggregates.employee.Employee
 import com.example.worktimeadministration.model.events.Event
 import com.example.worktimeadministration.model.events.worktime.handleWorktimeEvent
-import com.example.worktimeadministration.model.project.PROJECT_AGGREGATE
-import com.example.worktimeadministration.model.project.Project
+import com.example.worktimeadministration.model.aggregates.project.PROJECT_AGGREGATE
+import com.example.worktimeadministration.model.aggregates.project.Project
+import com.example.worktimeadministration.model.events.worktime.handleVacationHoursEvent
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.clients.admin.NewTopic
+import org.apache.kafka.common.config.TopicConfig
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.common.utils.Bytes
-import org.apache.kafka.streams.KeyValue
 import org.apache.kafka.streams.StreamsBuilder
 import org.apache.kafka.streams.StreamsConfig
 import org.apache.kafka.streams.kstream.*
@@ -27,6 +30,7 @@ import org.springframework.core.env.Environment
 import org.springframework.kafka.annotation.EnableKafkaStreams
 import org.springframework.kafka.annotation.KafkaStreamsDefaultConfiguration
 import org.springframework.kafka.config.KafkaStreamsConfiguration
+import org.springframework.kafka.config.TopicBuilder
 import org.springframework.kafka.support.serializer.JsonDeserializer
 import org.springframework.kafka.support.serializer.JsonSerializer
 import java.net.InetAddress
@@ -41,6 +45,7 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
     lateinit var eventSerde: Serde<Event>
     lateinit var employeeSerde: Serde<Employee>
     lateinit var projectSerde: Serde<Project>
+    lateinit var usedVacationSerde: Serde<UsedEmployeeVacationHours>
     lateinit var worktimeSerde: Serde<WorktimeEntry>
 
     init {
@@ -50,17 +55,35 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
         employeeDeserializer.setUseTypeHeaders(false)
         val projectDeserializer = JsonDeserializer(Project::class.java, mapper)
         projectDeserializer.setUseTypeHeaders(false)
+        val usedVacationDeserializer = JsonDeserializer(UsedEmployeeVacationHours::class.java, mapper)
+        usedVacationDeserializer.setUseTypeHeaders(false)
         val worktimeDeserializer = JsonDeserializer(WorktimeEntry::class.java, mapper)
         worktimeDeserializer.setUseTypeHeaders(false)
         eventSerde = Serdes.serdeFrom(JsonSerializer<Event>(mapper), eventDeserializer)
         employeeSerde = Serdes.serdeFrom(JsonSerializer<Employee>(mapper), employeeDeserializer)
         projectSerde = Serdes.serdeFrom(JsonSerializer<Project>(mapper), projectDeserializer)
+        usedVacationSerde = Serdes.serdeFrom(JsonSerializer<UsedEmployeeVacationHours>(mapper), usedVacationDeserializer)
         worktimeSerde = Serdes.serdeFrom(JsonSerializer<WorktimeEntry>(mapper), worktimeDeserializer)
     }
 
     @Bean
-    fun projectStoreTopic(): NewTopic {
-        return NewTopic("$WORKTIME_AGGREGATE-table", 2, 1)
+    fun vacationStoreTopic(): NewTopic {
+        return TopicBuilder.name("$VACATION_AGGREGATE-table")
+                .partitions(2)
+                .replicas(1)
+                .compact()
+                .config(TopicConfig.RETENTION_MS_CONFIG, "2000")
+                .build()
+    }
+
+    @Bean
+    fun worktimeStoreTopic(): NewTopic {
+        return TopicBuilder.name("$WORKTIME_AGGREGATE-table")
+                .partitions(2)
+                .replicas(1)
+                .compact()
+                .config(TopicConfig.RETENTION_MS_CONFIG, "2000")
+                .build()
     }
 
     @Bean(name = [KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME])
@@ -74,12 +97,27 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
         configs[StreamsConfig.APPLICATION_ID_CONFIG] = "worktime-administration"
         configs[StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG] = WallclockTimestampExtractor::class.java.name
         configs[StreamsConfig.PROCESSING_GUARANTEE_CONFIG] = StreamsConfig.EXACTLY_ONCE
-        configs[StreamsConfig.APPLICATION_SERVER_CONFIG] = "$hostname:8082"
+        configs[StreamsConfig.APPLICATION_SERVER_CONFIG] = "$hostname:8085"
         return KafkaStreamsConfiguration(configs)
     }
 
     @Bean
-    fun createTableTopicFromStream(builder: StreamsBuilder): KStream<String, WorktimeEntry?> {
+    fun createVacationTableTopicFromStream(builder: StreamsBuilder): KStream<String, UsedEmployeeVacationHours?> {
+        return builder.stream<String, Event>(VACATION_AGGREGATE, Consumed.with(Serdes.String(), eventSerde))
+                .groupByKey()
+                .aggregate(
+                        { null },
+                        { key: String, value: Event, aggregate: UsedEmployeeVacationHours? -> handleVacationHoursEvent(value, aggregate) },
+                        Materialized.`as`<String, UsedEmployeeVacationHours, KeyValueStore<Bytes, ByteArray>>("$VACATION_AGGREGATE-store")
+                                .withKeySerde(Serdes.String())
+                                .withValueSerde(usedVacationSerde)
+                )
+                .toStream()
+                .through("$VACATION_AGGREGATE-table", Produced.with(Serdes.String(), usedVacationSerde))
+    }
+
+    @Bean
+    fun createProjectTableTopicFromStream(builder: StreamsBuilder): KStream<String, WorktimeEntry?> {
         return builder.stream<String, Event>(WORKTIME_AGGREGATE, Consumed.with(Serdes.String(), eventSerde))
                 .groupByKey()
                 .aggregate(

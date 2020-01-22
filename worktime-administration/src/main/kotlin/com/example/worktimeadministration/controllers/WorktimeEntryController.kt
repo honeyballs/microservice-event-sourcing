@@ -1,8 +1,7 @@
 package com.example.worktimeadministration.controllers
 
 import com.example.worktimeadministration.model.dto.WorktimeEntryDto
-import com.example.worktimeadministration.model.project.ProjectDto
-import com.example.worktimeadministration.repositories.WorktimeEntryRepositoryGlobal
+import com.example.worktimeadministration.repositories.worktime.WorktimeEntryRepositoryGlobal
 import com.example.worktimeadministration.services.WorktimeEntryService
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok

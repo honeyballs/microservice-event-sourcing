@@ -1,16 +1,19 @@
 package com.example.worktimeadministration.configuration
 
+import com.example.worktimeadministration.model.aggregates.VACATION_AGGREGATE
 import com.example.worktimeadministration.model.aggregates.WORKTIME_AGGREGATE
 import com.example.worktimeadministration.model.events.Event
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.config.TopicConfig
 import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
 import org.springframework.kafka.annotation.EnableKafka
+import org.springframework.kafka.config.TopicBuilder
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaAdmin
 import org.springframework.kafka.core.KafkaTemplate
@@ -30,8 +33,21 @@ class KafkaProducerConfig {
     lateinit var env: Environment
 
     @Bean
+    fun vacationTopic(): NewTopic {
+        return TopicBuilder.name(VACATION_AGGREGATE)
+                .partitions(2)
+                .replicas(1)
+                .config(TopicConfig.RETENTION_MS_CONFIG, "-1")
+                .build()
+    }
+
+    @Bean
     fun worktimeTopic(): NewTopic {
-        return NewTopic(WORKTIME_AGGREGATE, 2, 1)
+        return TopicBuilder.name(WORKTIME_AGGREGATE)
+                .partitions(2)
+                .replicas(1)
+                .config(TopicConfig.RETENTION_MS_CONFIG, "-1")
+                .build()
     }
 
     @Bean

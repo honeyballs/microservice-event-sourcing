@@ -1,8 +1,7 @@
 package com.example.worktimeadministration.controllers
 
-import com.example.worktimeadministration.model.employee.Employee
-import com.example.worktimeadministration.model.employee.EmployeeDto
-import com.example.worktimeadministration.repositories.EmployeeRepositoryImpl
+import com.example.worktimeadministration.model.dto.EmployeeDto
+import com.example.worktimeadministration.repositories.employee.EmployeeRepositoryImpl
 import com.example.worktimeadministration.services.EmployeeService
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok

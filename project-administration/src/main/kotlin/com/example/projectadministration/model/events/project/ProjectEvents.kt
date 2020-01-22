@@ -1,10 +1,12 @@
 package com.example.projectadministration.model.events.project
 
+import com.example.projectadministration.model.aggregates.Customer
 import com.example.projectadministration.model.aggregates.DATE_PATTERN
 import com.example.projectadministration.model.events.Event
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import org.apache.kafka.common.protocol.types.Field
 import java.time.LocalDate
 import java.util.*
 
@@ -16,7 +18,9 @@ data class ProjectCreated(
         val description: String,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) val startDate: LocalDate,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) val projectedEndDate: LocalDate,
-        val employees: Set<String>
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) val endDate: LocalDate?,
+        val employees: Set<String>,
+        val customer: String
 ) : Event() {
 
     init {
@@ -54,6 +58,14 @@ data class ProjectEmployeeAdded(val employee: String) : Event() {
 data class ProjectEmployeeRemoved(val employee: String) : Event() {
     init {
         type = "Project employee removed"
+    }
+}
+
+@JsonTypeName("project-employees-changed")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+data class ProjectEmployeesChanged(val employees: Set<String>) : Event() {
+    init {
+        type = "Project employees changed"
     }
 }
 

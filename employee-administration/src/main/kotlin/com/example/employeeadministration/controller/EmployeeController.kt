@@ -2,12 +2,14 @@ package com.example.employeeadministration.controller
 
 import com.example.employeeadministration.model.dto.EmployeeDto
 import com.example.employeeadministration.services.EmployeeService
-import com.example.employeeadministration.repositories.EmployeeRepositoryGlobal
+import com.example.employeeadministration.repositories.employee.EmployeeRepositoryGlobal
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.ok
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
-const val URL= "employee"
+const val employeeUrl = "employee"
 
 @RestController
 class EmployeeController(
@@ -15,32 +17,32 @@ class EmployeeController(
         val employeeService: EmployeeService
 ) {
 
-    @GetMapping(URL)
+    @GetMapping(employeeUrl)
     fun getAllEmployees(): ResponseEntity<List<EmployeeDto>> {
         return ok(employeeRepository.getAllByDeletedFalse().map { employeeService.mapEntityToDto(it) })
     }
 
-    @GetMapping("$URL/{department}")
-    fun getAllOfDepartment(@PathVariable("department") department: String): ResponseEntity<List<EmployeeDto>> {
-        return ok(employeeRepository.getAllByDepartment(department).map { employeeService.mapEntityToDto(it) })
+    @GetMapping("$employeeUrl/{id}")
+    fun getEmployeeById(@PathVariable("id") id: String): ResponseEntity<EmployeeDto> {
+        return ok(employeeRepository.getByIdAndDeletedFalse(id).map { employeeService.mapEntityToDto(it) }.orElseThrow())
     }
 
-    @GetMapping("$URL/{id}")
-    fun getById(@PathVariable("id") id: String): ResponseEntity<EmployeeDto> {
-        return ok(employeeRepository.getById(id).map { employeeService.mapEntityToDto(it) }.orElseThrow())
+    @GetMapping("$employeeUrl/department/{depId}")
+    fun getEmployeesOfDepartment(@PathVariable("depId") departmentId: String): ResponseEntity<List<EmployeeDto>> {
+        return ok(employeeRepository.getAllByDepartmentAndDeletedFalse(departmentId).map { employeeService.mapEntityToDto(it) })
     }
 
-    @PostMapping(URL)
-    fun createEmployee(@RequestBody dto: EmployeeDto): ResponseEntity<EmployeeDto> {
-        return ok(employeeService.createEmployee(dto))
+    @PostMapping(employeeUrl)
+    fun createEmployee(@RequestBody employeeDto: EmployeeDto): ResponseEntity<EmployeeDto> {
+        return ok(employeeService.createEmployee(employeeDto))
     }
 
-    @PutMapping(URL)
-    fun updateEmployee(@RequestBody dto: EmployeeDto): ResponseEntity<EmployeeDto> {
-        return ok(employeeService.updateEmployee(dto))
+    @PutMapping(employeeUrl)
+    fun updateEmployee(@RequestBody employeeDto: EmployeeDto): ResponseEntity<EmployeeDto> {
+        return ok(employeeService.updateEmployee(employeeDto))
     }
 
-    @DeleteMapping("$URL/{id}")
+    @DeleteMapping("$employeeUrl/{id}")
     fun deleteEmployee(@PathVariable("id") id: String) {
         employeeService.deleteEmployee(id)
     }

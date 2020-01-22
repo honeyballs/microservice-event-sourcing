@@ -20,6 +20,7 @@ fun handleProjectEvent(event: Event, project: Project?): Project {
             is ProjectDelayed -> handleDelayedEvent(event, pro)
             is ProjectEmployeeAdded -> handleEmployeeAddedEvent(event, pro)
             is ProjectEmployeeRemoved -> handleEmployeeRemovedEvent(event, pro)
+            is ProjectEmployeesChanged -> handleEmployeesChangedEvent(event, pro)
             is ProjectFinished -> handleProjectFinishedEvent(event, pro)
             is ProjectDeleted -> handleDeletedEvent(event, pro)
         }
@@ -33,8 +34,9 @@ fun handleCreateEvent(event: ProjectCreated): Project {
             event.description,
             event.startDate,
             event.projectedEndDate,
+            event.endDate,
             event.employees,
-            null,
+            event.customer,
             event.projectId
     )
 }
@@ -53,6 +55,10 @@ fun handleEmployeeAddedEvent(event: ProjectEmployeeAdded, pro: Project) {
 
 fun handleEmployeeRemovedEvent(event: ProjectEmployeeRemoved, pro: Project) {
     pro.employees = pro.employees.minus(event.employee)
+}
+
+fun handleEmployeesChangedEvent(event: ProjectEmployeesChanged, pro: Project) {
+    pro.employees = event.employees
 }
 
 fun handleProjectFinishedEvent(event: ProjectFinished, pro: Project) {

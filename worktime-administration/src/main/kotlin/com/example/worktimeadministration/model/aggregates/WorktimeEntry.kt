@@ -1,8 +1,9 @@
 package com.example.worktimeadministration.model.aggregates
 
-import com.example.worktimeadministration.model.employee.Employee
+import com.example.worktimeadministration.model.aggregates.employee.Employee
+import com.example.worktimeadministration.model.aggregates.project.Project
 import com.example.worktimeadministration.model.events.DATE_TIME_PATTERN
-import com.example.worktimeadministration.model.events.worktime.WorktimeCreated
+import com.example.worktimeadministration.model.events.worktime.*
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
@@ -17,10 +18,11 @@ const val WORKTIME_AGGREGATE = "worktime"
 class WorktimeEntry(
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_PATTERN) var startTime: LocalDateTime,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_PATTERN) var endTime: LocalDateTime,
-        var pauseTimeInMinutes: Int,
+        var pauseTimeInMinutes: Int = 0,
         var project: String,
         val employee: String,
         var description: String,
+        var type: EntryType,
         override var id: String = UUID.randomUUID().toString(),
         var deleted: Boolean = false
 ) : Aggregate() {
@@ -37,48 +39,58 @@ class WorktimeEntry(
                 pauseTimeInMinutes: Int,
                 project: String,
                 employee: String,
-                description: String
+                description: String,
+                type: EntryType
         ): WorktimeEntry {
-            val entry = WorktimeEntry(startTime, endTime, pauseTimeInMinutes, project, employee, description)
-            entry.registerEvent(WorktimeCreated(entry.id, startTime, endTime, pauseTimeInMinutes, project, employee, description))
+            val entry = WorktimeEntry(startTime, endTime, pauseTimeInMinutes, project, employee, description, type)
+            entry.registerEvent(WorktimeCreated(entry.id, startTime, endTime, pauseTimeInMinutes, project, employee, description, type))
             return entry
         }
     }
 
-    fun forProject( project: String) {
+    fun changeProject( project: String) {
         if (project == "") {
             throw RuntimeException("Project must be defined")
         }
         this.project = project
+        registerEvent(WorktimeProjectChanged(this.project))
     }
 
-    fun enterDescription(description: String) {
+    fun changeDescription(description: String) {
         if (description == "") {
             throw RuntimeException("Description must be defined")
         }
         this.description = description
+        registerEvent(WorktimeDescriptionChanged(description))
     }
 
     fun adjustStartTime(newStartTime: LocalDateTime) {
         areTimesValid(newStartTime, this.endTime, this.pauseTimeInMinutes)
         this.startTime = newStartTime
+        registerEvent(WorktimeStarttimeAdjusted(this.startTime))
     }
 
     fun adjustEndTime(newEndTime: LocalDateTime) {
         areTimesValid(this.startTime, newEndTime, this.pauseTimeInMinutes)
         this.endTime = newEndTime
+        registerEvent(WorktimeEndtimeAdjusted(this.endTime))
     }
 
     fun adjustPause(pause: Int) {
         areTimesValid(this.startTime, this.endTime, pause)
         this.pauseTimeInMinutes = pause
+        registerEvent(WorktimePauseAdjusted(this.pauseTimeInMinutes))
     }
 
     fun deleteEntry() {
         this.deleted = true
+        registerEvent(WorktimeDeleted())
     }
 
     private fun isPauseTimeSufficient(startTime: LocalDateTime, endTime: LocalDateTime, pause: Int): Boolean {
+        if (type != EntryType.WORK) {
+            return true
+        }
         val timespan = startTime.until(endTime, ChronoUnit.HOURS).toInt()
         return timespan < 8 || timespan in 8..9 && pause >= 30
                 || timespan >= 10 && pause >= 60
@@ -93,4 +105,12 @@ class WorktimeEntry(
             throw RuntimeException("The pause time is insufficient")
         }
     }
+
+
+}
+
+enum class EntryType(type: String) {
+    WORK("WORK"),
+    VACATION("VACATION"),
+    SICK("SICK")
 }

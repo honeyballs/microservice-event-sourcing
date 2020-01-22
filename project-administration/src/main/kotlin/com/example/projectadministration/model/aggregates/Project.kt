@@ -1,6 +1,6 @@
 package com.example.projectadministration.model.aggregates
 
-import com.example.projectadministration.model.employee.Employee
+import com.example.projectadministration.model.aggregates.employee.Employee
 import com.example.projectadministration.model.events.project.*
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonTypeInfo
@@ -14,12 +14,13 @@ const val PROJECT_AGGREGATE = "project"
 @JsonTypeName("project")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class Project(
-        val name: String,
+        var name: String,
         var description: String,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) val startDate: LocalDate,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) var projectedEndDate: LocalDate,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) var endDate: LocalDate?,
         var employees: Set<String>,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) var endDate: LocalDate? = null,
+        val customer: String,
         override var id: String = UUID.randomUUID().toString(),
         var deleted: Boolean = false
 ): Aggregate() {
@@ -34,37 +35,48 @@ data class Project(
                 description: String,
                 startDate: LocalDate,
                 projectedEndDate: LocalDate,
+                endDate: LocalDate?,
                 employees: Set<String>,
-                endDate: LocalDate?
+                customer: String
         ): Project {
-            val project = Project(name, description, startDate, projectedEndDate, employees, endDate)
-            project.registerEvent(ProjectCreated(project.id, name, description, startDate, projectedEndDate, employees))
+            val project = Project(name, description, startDate, projectedEndDate, endDate, employees, customer)
+            project.registerEvent(ProjectCreated(project.id, name, description, startDate, projectedEndDate, endDate, employees, customer))
             return project
         }
     }
 
-    fun updateDescription(description: String) {
+    fun delayProject(newProjectedDate: LocalDate) {
+        this.projectedEndDate = newProjectedDate
+        registerEvent(ProjectDelayed(this.projectedEndDate))
+    }
+
+    fun finishProject(endDate: LocalDate) {
+        if (this.endDate == null) {
+            this.endDate = endDate
+        } else {
+            throw RuntimeException("Project is already finished")
+        }
+        registerEvent(ProjectFinished(this.endDate!!))
+    }
+
+    fun updateProjectDescription(description: String) {
         this.description = description
         registerEvent(ProjectDescriptionChanged(this.description))
     }
 
-    fun delayProject(projectedEndDate: LocalDate) {
-        if (endDate == null && startDate.isBefore(projectedEndDate)) {
-            this.projectedEndDate = projectedEndDate
-            registerEvent(ProjectDelayed(this.projectedEndDate))
-        } else {
-            throw RuntimeException("The provided date is not valid")
-        }
+    fun addEmployeeToProject(employee: String) {
+        this.employees = employees.plus(employee)
+        registerEvent(ProjectEmployeeAdded(employee))
     }
 
-    fun addEmployeeToProject(employeeId: String) {
-        this.employees = this.employees.plus(employeeId)
-        registerEvent(ProjectEmployeeAdded(employeeId))
+    fun removeEmployeeFromProject(employee: String) {
+        this.employees = employees.minus(employee)
+        registerEvent(ProjectEmployeeRemoved(employee))
     }
 
-    fun removeEmployeeFromProject(employeeId: String) {
-        this.employees = this.employees.minus(employeeId)
-        registerEvent(ProjectEmployeeRemoved(employeeId))
+    fun changeEmployeesWorkingOnProject(employees: Set<String>) {
+        this.employees = employees
+        registerEvent(ProjectEmployeesChanged(this.employees))
     }
 
     fun delete() {
@@ -72,4 +84,7 @@ data class Project(
         registerEvent(ProjectDeleted())
     }
 
+    override fun toString(): String {
+        return "Project - Id: $id, name: $name"
+    }
 }

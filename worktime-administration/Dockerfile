@@ -19,7 +19,7 @@ COPY --from=builder /builder/build/libs/worktime-administration-1.jar /usr/src/a
 
 WORKDIR /usr/src/app
 
-EXPOSE 8082
+EXPOSE 8085
 
 #CMD ["java", "-jar", "app.jar", "--spring.profiles.active=prod", "--spring.kafka.consumer.bootstrap-servers=kafka:9092", "--spring.kafka.bootstrap-servers=kafka:9092"]
 CMD ["java", "-jar", "app.jar"]

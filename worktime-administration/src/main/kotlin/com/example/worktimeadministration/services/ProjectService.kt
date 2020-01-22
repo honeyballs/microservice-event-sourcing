@@ -1,9 +1,8 @@
 package com.example.worktimeadministration.services
 
-import com.example.worktimeadministration.model.project.Project
-import com.example.worktimeadministration.model.project.ProjectDto
-import com.example.worktimeadministration.repositories.ProjectRepository
-import com.example.worktimeadministration.repositories.ProjectRepositoryImpl
+import com.example.worktimeadministration.model.aggregates.project.Project
+import com.example.worktimeadministration.model.dto.ProjectDto
+import com.example.worktimeadministration.repositories.project.ProjectRepositoryImpl
 import org.springframework.stereotype.Service
 
 @Service
@@ -13,19 +12,14 @@ class ProjectService(val projectRepository: ProjectRepositoryImpl) : MappingServ
         return ProjectDto(
                 entity.id,
                 entity.name,
+                entity.description,
                 entity.startDate,
+                entity.projectedEndDate,
                 entity.endDate
         )
     }
 
     override fun mapDtoToEntity(dto: ProjectDto): Project {
-        return Project(
-                dto.id,
-                dto.name,
-                dto.startDate,
-                dto.endDate,
-                projectRepository.getById(dto.id).map { it.employees }.orElseThrow(),
-                false
-        )
+        TODO("Not required")
     }
 }

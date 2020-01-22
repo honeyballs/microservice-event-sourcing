@@ -19,12 +19,13 @@ class EventProducer(val kafkaTemplate: KafkaTemplate<String, Event>) : Aggregate
      * if this transaction id is lower than a transaction that was completed before the transaction is cancelled.
      */
     override fun produceAggregateEvent(agg: Aggregate) {
-        kafkaTemplate.executeInTransaction { t ->
-            agg.events.map { ProducerRecord<String, Event>(agg.aggregateName, agg.id, it) }
-                    .forEach { t.send(it) }
-            agg.clearEvents()
+        if (agg.events.size > 0) {
+            kafkaTemplate.executeInTransaction { t ->
+                agg.events.map { ProducerRecord<String, Event>(agg.aggregateName, agg.id, it) }
+                        .forEach { t.send(it) }
+                agg.clearEvents()
+            }
         }
-
     }
 
 }

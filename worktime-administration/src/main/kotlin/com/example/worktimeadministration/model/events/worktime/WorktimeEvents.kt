@@ -1,5 +1,6 @@
 package com.example.worktimeadministration.model.events.worktime
 
+import com.example.worktimeadministration.model.aggregates.EntryType
 import com.example.worktimeadministration.model.events.DATE_TIME_PATTERN
 import com.example.worktimeadministration.model.events.Event
 import com.fasterxml.jackson.annotation.JsonFormat
@@ -17,38 +18,27 @@ data class WorktimeCreated(
         val pause: Int,
         val projectId: String,
         val employeeId: String,
-        val description: String
+        val description: String,
+        val entryType: EntryType
 ) : Event() {
     init {
         type = "Worktime created"
     }
 }
 
-@JsonTypeName("worktime-time-set")
+@JsonTypeName("worktime-project-changed")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-data class WorktimeSetTime(
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_PATTERN) val startTime: LocalDateTime,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_TIME_PATTERN) val endTime: LocalDateTime,
-        val pause: Int
-) : Event() {
+data class WorktimeProjectChanged(val projectId: String) : Event() {
     init {
-        type = "Worktime set entry time"
+        type = "Worktime changed project"
     }
 }
 
-@JsonTypeName("worktime-project")
+@JsonTypeName("worktime-description-changed")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-data class WorktimeProjectSet(val projectId: String) : Event() {
+data class WorktimeDescriptionChanged(val description: String) : Event() {
     init {
-        type = "Worktime set project"
-    }
-}
-
-@JsonTypeName("worktime-set-description")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-data class WorktimeDescriptionSet(val description: String) : Event() {
-    init {
-        type = "Worktime set description"
+        type = "Worktime changed description"
     }
 }
 
@@ -81,5 +71,30 @@ data class WorktimePauseAdjusted(val pause: Int) : Event() {
 data class WorktimeDeleted(val deleted: Boolean = true) : Event() {
     init {
         type = "Worktime deleted"
+    }
+}
+
+
+@JsonTypeName("used-hours-created")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+data class UsedHoursCreated(val usedId: String,val employeeId: String, val hours: Int): Event() {
+    init {
+        type = "Used hours entry created"
+    }
+}
+
+@JsonTypeName("used-hours-updated")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+data class UsedHoursUpdated(val hours: Int): Event() {
+    init {
+        type = "Used hours entry updated"
+    }
+}
+
+@JsonTypeName("used-hours-deleted")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+data class UsedHoursDeleted(val deleted: Boolean = true): Event() {
+    init {
+        type = "Used hours entry deleted"
     }
 }

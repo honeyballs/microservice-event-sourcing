@@ -4,4 +4,4 @@ spring:
       write-dates-as-timestamps: false
 
 server:
-  port: 8082
+  port: 8085

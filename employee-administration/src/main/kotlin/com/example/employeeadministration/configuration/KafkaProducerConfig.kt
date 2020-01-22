@@ -1,16 +1,20 @@
 package com.example.employeeadministration.configuration
 
+import com.example.employeeadministration.model.aggregates.DEPARTMENT_AGGREGATE
 import com.example.employeeadministration.model.aggregates.EMPLOYEE_AGGREGATE
+import com.example.employeeadministration.model.aggregates.POSITION_AGGREGATE
 import com.example.employeeadministration.model.events.Event
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.producer.ProducerConfig
+import org.apache.kafka.common.config.TopicConfig
 import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment
 import org.springframework.kafka.annotation.EnableKafka
+import org.springframework.kafka.config.TopicBuilder
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaAdmin
 import org.springframework.kafka.core.KafkaTemplate
@@ -31,7 +35,29 @@ class KafkaProducerConfig {
 
     @Bean
     fun employeeTopic(): NewTopic {
-        return NewTopic(EMPLOYEE_AGGREGATE, 2, 1)
+        return TopicBuilder.name(EMPLOYEE_AGGREGATE)
+                .partitions(2)
+                .replicas(1)
+                .config(TopicConfig.RETENTION_MS_CONFIG, "-1")
+                .build()
+    }
+
+    @Bean
+    fun departmentTopic(): NewTopic {
+        return TopicBuilder.name(DEPARTMENT_AGGREGATE)
+                .partitions(2)
+                .replicas(1)
+                .config(TopicConfig.RETENTION_MS_CONFIG, "-1")
+                .build()
+    }
+
+    @Bean
+    fun positionTopic(): NewTopic {
+        return TopicBuilder.name(POSITION_AGGREGATE)
+                .partitions(2)
+                .replicas(1)
+                .config(TopicConfig.RETENTION_MS_CONFIG, "-1")
+                .build()
     }
 
     @Bean

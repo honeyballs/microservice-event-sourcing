@@ -14,13 +14,16 @@ const val DATE_TIME_PATTERN = "dd.MM.yyyy HH:mm:ss:SSS"
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes(
         JsonSubTypes.Type(value = WorktimeCreated::class, name = "worktime-created"),
-        JsonSubTypes.Type(value = WorktimeSetTime::class, name = "worktime-time-set"),
-        JsonSubTypes.Type(value = WorktimeProjectSet::class, name = "worktime-project"),
-        JsonSubTypes.Type(value = WorktimeDescriptionSet::class, name = "worktime-set-description"),
+        JsonSubTypes.Type(value = WorktimeProjectChanged::class, name = "worktime-project-changed"),
+        JsonSubTypes.Type(value = WorktimeDescriptionChanged::class, name = "worktime-description-changed"),
         JsonSubTypes.Type(value = WorktimeStarttimeAdjusted::class, name = "worktime-starttime-adjusted"),
         JsonSubTypes.Type(value = WorktimeEndtimeAdjusted::class, name = "worktime-endtime-adjusted"),
         JsonSubTypes.Type(value = WorktimePauseAdjusted::class, name = "worktime-pause-adjusted"),
-        JsonSubTypes.Type(value = WorktimeDeleted::class, name = "worktime-deleted")
+        JsonSubTypes.Type(value = WorktimeDeleted::class, name = "worktime-deleted"),
+
+        JsonSubTypes.Type(value = UsedHoursCreated::class, name = "used-hours-created"),
+        JsonSubTypes.Type(value = UsedHoursUpdated::class, name = "used-hours-updated"),
+        JsonSubTypes.Type(value = UsedHoursDeleted::class, name = "used-hours-deleted")
 )
 abstract class Event(
         val id: String = UUID.randomUUID().toString(),

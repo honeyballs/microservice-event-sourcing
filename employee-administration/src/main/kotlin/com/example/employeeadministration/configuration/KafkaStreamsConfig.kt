@@ -1,11 +1,13 @@
 package com.example.employeeadministration.configuration
 
-import com.example.employeeadministration.model.aggregates.EMPLOYEE_AGGREGATE
-import com.example.employeeadministration.model.aggregates.Employee
+import com.example.employeeadministration.model.aggregates.*
 import com.example.employeeadministration.model.events.Event
+import com.example.employeeadministration.model.events.department.handleDepartmentEvent
 import com.example.employeeadministration.model.events.employee.*
+import com.example.employeeadministration.model.events.position.handlePositionEvent
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.apache.kafka.clients.admin.NewTopic
+import org.apache.kafka.common.config.TopicConfig
 import org.apache.kafka.common.serialization.Serde
 import org.apache.kafka.common.serialization.Serdes
 import org.apache.kafka.common.utils.Bytes
@@ -21,6 +23,7 @@ import org.springframework.core.env.Environment
 import org.springframework.kafka.annotation.EnableKafkaStreams
 import org.springframework.kafka.annotation.KafkaStreamsDefaultConfiguration
 import org.springframework.kafka.config.KafkaStreamsConfiguration
+import org.springframework.kafka.config.TopicBuilder
 import org.springframework.kafka.support.serializer.JsonDeserializer
 import org.springframework.kafka.support.serializer.JsonSerializer
 import java.net.InetAddress
@@ -34,20 +37,52 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
 
     lateinit var eventSerde: Serde<Event>
     lateinit var employeeSerde: Serde<Employee>
+    lateinit var departmentSerde: Serde<Department>
+    lateinit var positionSerde: Serde<Position>
 
     init {
         val eventDeserializer = JsonDeserializer(Event::class.java, mapper)
         eventDeserializer.setUseTypeHeaders(false)
         val employeeDeserializer = JsonDeserializer(Employee::class.java, mapper)
         employeeDeserializer.setUseTypeHeaders(false)
+        val departmentDeserializer = JsonDeserializer(Department::class.java, mapper)
+        departmentDeserializer.setUseTypeHeaders(false)
+        val positionDeserializer = JsonDeserializer(Position::class.java, mapper)
+        positionDeserializer.setUseTypeHeaders(false)
         eventSerde = Serdes.serdeFrom(JsonSerializer<Event>(mapper), eventDeserializer)
         employeeSerde = Serdes.serdeFrom(JsonSerializer<Employee>(mapper), employeeDeserializer)
+        departmentSerde = Serdes.serdeFrom(JsonSerializer<Department>(mapper), departmentDeserializer)
+        positionSerde = Serdes.serdeFrom(JsonSerializer<Position>(mapper), positionDeserializer)
     }
-
 
     @Bean
     fun employeeStoreTopic(): NewTopic {
-        return NewTopic("$EMPLOYEE_AGGREGATE-table", 2, 1)
+        return TopicBuilder.name("$EMPLOYEE_AGGREGATE-table")
+                .partitions(2)
+                .replicas(1)
+                .compact()
+                .config(TopicConfig.RETENTION_MS_CONFIG, "2000")
+                .build()
+    }
+
+    @Bean
+    fun departmentStoreTopic(): NewTopic {
+        return TopicBuilder.name("$DEPARTMENT_AGGREGATE-table")
+                .partitions(2)
+                .replicas(1)
+                .compact()
+                .config(TopicConfig.RETENTION_MS_CONFIG, "2000")
+                .build()
+    }
+
+    @Bean
+    fun positionStoreTopic(): NewTopic {
+        return TopicBuilder.name("$POSITION_AGGREGATE-table")
+                .partitions(2)
+                .replicas(1)
+                .compact()
+                .config(TopicConfig.RETENTION_MS_CONFIG, "2000")
+                .build()
     }
 
     @Bean(name = [KafkaStreamsDefaultConfiguration.DEFAULT_STREAMS_CONFIG_BEAN_NAME])
@@ -66,7 +101,7 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
     }
 
     @Bean
-    fun createTableTopicFromStream(builder: StreamsBuilder): KStream<String, Employee?> {
+    fun createTableTopicFromEmployeeStream(builder: StreamsBuilder): KStream<String, Employee?> {
         return builder.stream<String, Event>(EMPLOYEE_AGGREGATE, Consumed.with(Serdes.String(), eventSerde))
                 .groupByKey()
                 .aggregate(
@@ -79,6 +114,38 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
                 .toStream()
                 .peek(ForeachAction { key: String , value: Employee  -> println(value.toString()) })
                 .through("$EMPLOYEE_AGGREGATE-table", Produced.with(Serdes.String(), employeeSerde))
+    }
+
+    @Bean
+    fun createTableTopicFromDepartmentStream(builder: StreamsBuilder): KStream<String, Department?> {
+        return builder.stream<String, Event>(DEPARTMENT_AGGREGATE, Consumed.with(Serdes.String(), eventSerde))
+                .groupByKey()
+                .aggregate(
+                        { null },
+                        { key: String, value: Event, aggregate: Department? -> handleDepartmentEvent(value, aggregate) },
+                        Materialized.`as`<String, Department, KeyValueStore<Bytes, ByteArray>>("$DEPARTMENT_AGGREGATE-store")
+                                .withKeySerde(Serdes.String())
+                                .withValueSerde(departmentSerde)
+                )
+                .toStream()
+                .peek(ForeachAction { key: String , value: Department  -> println(value.toString()) })
+                .through("$DEPARTMENT_AGGREGATE-table", Produced.with(Serdes.String(), departmentSerde))
+    }
+
+    @Bean
+    fun createTableTopicFromPositionStream(builder: StreamsBuilder): KStream<String, Position?> {
+        return builder.stream<String, Event>(POSITION_AGGREGATE, Consumed.with(Serdes.String(), eventSerde))
+                .groupByKey()
+                .aggregate(
+                        { null },
+                        { key: String, value: Event, aggregate: Position? -> handlePositionEvent(value, aggregate) },
+                        Materialized.`as`<String, Position, KeyValueStore<Bytes, ByteArray>>("$POSITION_AGGREGATE-store")
+                                .withKeySerde(Serdes.String())
+                                .withValueSerde(positionSerde)
+                )
+                .toStream()
+                .peek(ForeachAction { key: String , value: Position  -> println(value.toString()) })
+                .through("$POSITION_AGGREGATE-table", Produced.with(Serdes.String(), positionSerde))
     }
 
 }

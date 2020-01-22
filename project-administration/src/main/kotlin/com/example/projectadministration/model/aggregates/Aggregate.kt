@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeName
 @JsonTypeName("aggregate")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 @JsonSubTypes(
+        JsonSubTypes.Type(value = Customer::class, name = "customer"),
         JsonSubTypes.Type(value = Project::class, name = "project")
 )
 abstract class Aggregate {
