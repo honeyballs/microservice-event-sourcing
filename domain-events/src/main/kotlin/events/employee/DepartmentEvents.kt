@@ -1,8 +1,8 @@
-package com.example.employeeadministration.model.events.department
+package events.employee
 
-import com.example.employeeadministration.model.events.Event
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import events.Event
 
 @JsonTypeName("department-created")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)

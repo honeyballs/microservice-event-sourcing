@@ -7,6 +7,7 @@ import com.example.employeeadministration.model.valueobjects.CompanyMail
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import events.employee.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -57,14 +58,29 @@ class Employee(
                    hourlyRate: BigDecimal
         ): Employee {
             val employee = Employee(firstname, lastname, birthday, address, bankDetails, department, position, availableVacationHours, hourlyRate, null)
-            employee.registerEvent(EmployeeCreated(employee.id, firstname, lastname, birthday, address, bankDetails, department, position, availableVacationHours, hourlyRate, employee.companyMail))
+            employee.registerEvent(EmployeeCreated(
+                    employee.id,
+                    firstname,
+                    lastname, birthday,
+                    address.street,
+                    address.no,
+                    address.city,
+                    address.zipCode.zip,
+                    bankDetails.iban,
+                    bankDetails.bic,
+                    bankDetails.bankName,
+                    department,
+                    position,
+                    availableVacationHours,
+                    hourlyRate,
+                    employee.companyMail.mail))
             return employee
         }
     }
 
     fun moveToNewAddress(address: Address) {
         this.address = address
-        registerEvent(EmployeeMoved(this.address))
+        registerEvent(EmployeeMoved(this.address.street, this.address.no, this.address.city, this.address.zipCode.zip))
     }
 
     fun receiveRaiseBy(raiseAmount: BigDecimal) {
@@ -74,17 +90,17 @@ class Employee(
 
     fun switchBankDetails(bankDetails: BankDetails) {
         this.bankDetails = bankDetails
-        registerEvent(EmployeeChangedBanking(bankDetails))
+        registerEvent(EmployeeChangedBanking(this.bankDetails.iban, this.bankDetails.bic, this.bankDetails.bankName))
     }
 
     fun changeJobPosition(position: String) {
         this.position = position
-        registerEvent(EmployeeChangedPosition(position))
+        registerEvent(EmployeeChangedPosition(this.position))
     }
 
     fun moveToAnotherDepartment(department: String) {
         this.department = department
-        registerEvent(EmployeeChangedDepartment(department))
+        registerEvent(EmployeeChangedDepartment(this.department))
     }
 
     /**
@@ -94,7 +110,7 @@ class Employee(
         this.firstname = firstname ?: this.firstname
         this.lastname = lastname ?: this.lastname
         this.companyMail = CompanyMail(this.firstname, this.lastname)
-        registerEvent(EmployeeChangedName(this.firstname, this.lastname, this.companyMail))
+        registerEvent(EmployeeChangedName(this.firstname, this.lastname, this.companyMail.mail))
     }
 
     fun delete() {

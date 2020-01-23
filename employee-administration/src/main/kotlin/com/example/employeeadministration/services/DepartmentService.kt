@@ -35,7 +35,7 @@ class DepartmentService(
     }
 
     fun deleteDepartment(id: String) {
-        val department = departmentRepositoryGlobal.getByIdAndDeletedFalse(id).ifPresentOrElse({
+        departmentRepositoryGlobal.getByIdAndDeletedFalse(id).ifPresentOrElse({
             it.delete()
             eventProducer.produceAggregateEvent(it)
         }) {

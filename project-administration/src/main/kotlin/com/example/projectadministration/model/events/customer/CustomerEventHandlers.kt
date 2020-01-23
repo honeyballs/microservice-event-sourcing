@@ -1,9 +1,9 @@
 package com.example.projectadministration.model.events.customer
 
-import com.example.projectadministration.model.aggregates.Customer
-import com.example.projectadministration.model.aggregates.Project
-import com.example.projectadministration.model.events.Event
+import com.example.projectadministration.model.aggregates.*
 import com.example.projectadministration.model.events.project.*
+import events.Event
+import events.project.*
 
 fun handleCustomerEvent(event: Event, customer: Customer?): Customer {
     var cus = customer
@@ -27,7 +27,12 @@ fun handleCustomerEvent(event: Event, customer: Customer?): Customer {
 }
 
 fun handleCreateEvent(event: CustomerCreated): Customer {
-    return Customer(event.name, event.address, event.contact, event.customerId)
+    return Customer(
+            event.name,
+            Address(event.street, event.no, event.city, ZipCode(event.zipCode)),
+            CustomerContact(event.firstname, event.lastname, event.mail, event.phone),
+            event.customerId
+    )
 }
 
 fun handleNameChanged(event: CustomerNameChanged, customer: Customer) {
@@ -35,11 +40,13 @@ fun handleNameChanged(event: CustomerNameChanged, customer: Customer) {
 }
 
 fun handleMoved(event: CustomerMoved, customer: Customer) {
-    customer.address = event.address
+    customer.address = Address(event.street, event.no, event.city, ZipCode(event.zipCode))
+
 }
 
 fun handleContactChanged(event: CustomerContactChanged, customer: Customer) {
-    customer.contact = event.contact
+    customer.contact = CustomerContact(event.firstname, event.lastname, event.mail, event.phone)
+
 }
 
 fun handleDeletedEvent(event: CustomerDeleted, customer: Customer) {

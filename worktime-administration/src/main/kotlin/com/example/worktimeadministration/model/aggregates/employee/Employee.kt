@@ -11,12 +11,12 @@ data class Employee(
         var availableVacationHours: Int,
         var deleted: Boolean
 ) {
-    lateinit var companyMail: String
+    lateinit var mail: String
 
     // Since mail is stored in a value object which isn't relevant for this service it is reduced to a string
     @JsonProperty("companyMail")
     fun unpackMail(mail: Map<String, Any>) {
-        this.companyMail = mail["mail"] as String
+        this.mail = mail["mail"] as String
     }
 
 }

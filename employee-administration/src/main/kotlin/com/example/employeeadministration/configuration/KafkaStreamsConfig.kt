@@ -1,11 +1,11 @@
 package com.example.employeeadministration.configuration
 
 import com.example.employeeadministration.model.aggregates.*
-import com.example.employeeadministration.model.events.Event
 import com.example.employeeadministration.model.events.department.handleDepartmentEvent
 import com.example.employeeadministration.model.events.employee.*
 import com.example.employeeadministration.model.events.position.handlePositionEvent
 import com.fasterxml.jackson.databind.ObjectMapper
+import events.Event
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.common.config.TopicConfig
 import org.apache.kafka.common.serialization.Serde
@@ -106,13 +106,13 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
                 .groupByKey()
                 .aggregate(
                         { null },
-                        { key: String, value: Event, aggregate: Employee? -> handleEmployeeEvent(value, aggregate) },
+                        { _: String, value: Event, aggregate: Employee? -> handleEmployeeEvent(value, aggregate) },
                         Materialized.`as`<String, Employee, KeyValueStore<Bytes, ByteArray>>("$EMPLOYEE_AGGREGATE-store")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(employeeSerde)
                 )
                 .toStream()
-                .peek(ForeachAction { key: String , value: Employee  -> println(value.toString()) })
+                .peek(ForeachAction { _: String, value: Employee  -> println(value.toString()) })
                 .through("$EMPLOYEE_AGGREGATE-table", Produced.with(Serdes.String(), employeeSerde))
     }
 
@@ -122,13 +122,13 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
                 .groupByKey()
                 .aggregate(
                         { null },
-                        { key: String, value: Event, aggregate: Department? -> handleDepartmentEvent(value, aggregate) },
+                        { _: String, value: Event, aggregate: Department? -> handleDepartmentEvent(value, aggregate) },
                         Materialized.`as`<String, Department, KeyValueStore<Bytes, ByteArray>>("$DEPARTMENT_AGGREGATE-store")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(departmentSerde)
                 )
                 .toStream()
-                .peek(ForeachAction { key: String , value: Department  -> println(value.toString()) })
+                .peek(ForeachAction { _: String, value: Department  -> println(value.toString()) })
                 .through("$DEPARTMENT_AGGREGATE-table", Produced.with(Serdes.String(), departmentSerde))
     }
 
@@ -138,13 +138,13 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
                 .groupByKey()
                 .aggregate(
                         { null },
-                        { key: String, value: Event, aggregate: Position? -> handlePositionEvent(value, aggregate) },
+                        { _: String, value: Event, aggregate: Position? -> handlePositionEvent(value, aggregate) },
                         Materialized.`as`<String, Position, KeyValueStore<Bytes, ByteArray>>("$POSITION_AGGREGATE-store")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(positionSerde)
                 )
                 .toStream()
-                .peek(ForeachAction { key: String , value: Position  -> println(value.toString()) })
+                .peek(ForeachAction { _: String, value: Position  -> println(value.toString()) })
                 .through("$POSITION_AGGREGATE-table", Produced.with(Serdes.String(), positionSerde))
     }
 

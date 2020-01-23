@@ -25,7 +25,7 @@ class PositionService(
         if (positionDto.id == null || positionDto.id == "") {
             throw RuntimeException("Id required to update")
         }
-        return positionRepositoryGlobal.getByIdAndDeletedFalse(positionDto.id!!).map {
+        return positionRepositoryGlobal.getByIdAndDeletedFalse(positionDto.id).map {
             if (it.title != positionDto.title) {
                 it.changePositionTitle(positionDto.title)
             }
@@ -38,7 +38,7 @@ class PositionService(
     }
 
     fun deletePosition(id: String) {
-        val department = positionRepositoryGlobal.getByIdAndDeletedFalse(id).ifPresentOrElse({
+        positionRepositoryGlobal.getByIdAndDeletedFalse(id).ifPresentOrElse({
             it.delete()
             eventProducer.produceAggregateEvent(it)
         }) {

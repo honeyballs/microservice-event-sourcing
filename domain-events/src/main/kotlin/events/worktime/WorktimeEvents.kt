@@ -1,25 +1,23 @@
-package com.example.worktimeadministration.model.events.worktime
+package events.worktime
 
-import com.example.worktimeadministration.model.aggregates.EntryType
-import com.example.worktimeadministration.model.events.DATE_TIME_PATTERN
-import com.example.worktimeadministration.model.events.Event
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
-import java.time.LocalDate
+import events.DATE_TIME_PATTERN
+import events.Event
 import java.time.LocalDateTime
 
 @JsonTypeName("worktime-created")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class WorktimeCreated(
-        val worktimeId: String,
-        val startTime: LocalDateTime,
-        val endTime: LocalDateTime,
-        val pause: Int,
-        val projectId: String,
-        val employeeId: String,
-        val description: String,
-        val entryType: EntryType
+    val worktimeId: String,
+    val startTime: LocalDateTime,
+    val endTime: LocalDateTime,
+    val pause: Int,
+    val projectId: String,
+    val employeeId: String,
+    val description: String,
+    val entryType: String
 ) : Event() {
     init {
         type = "Worktime created"
@@ -71,30 +69,5 @@ data class WorktimePauseAdjusted(val pause: Int) : Event() {
 data class WorktimeDeleted(val deleted: Boolean = true) : Event() {
     init {
         type = "Worktime deleted"
-    }
-}
-
-
-@JsonTypeName("used-hours-created")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-data class UsedHoursCreated(val usedId: String,val employeeId: String, val hours: Int): Event() {
-    init {
-        type = "Used hours entry created"
-    }
-}
-
-@JsonTypeName("used-hours-updated")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-data class UsedHoursUpdated(val hours: Int): Event() {
-    init {
-        type = "Used hours entry updated"
-    }
-}
-
-@JsonTypeName("used-hours-deleted")
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-data class UsedHoursDeleted(val deleted: Boolean = true): Event() {
-    init {
-        type = "Used hours entry deleted"
     }
 }

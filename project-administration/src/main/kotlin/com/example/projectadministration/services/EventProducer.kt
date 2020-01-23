@@ -1,7 +1,7 @@
 package com.example.projectadministration.services
 
 import com.example.projectadministration.model.aggregates.Aggregate
-import com.example.projectadministration.model.events.Event
+import events.Event
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service

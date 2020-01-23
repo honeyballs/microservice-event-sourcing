@@ -1,9 +1,9 @@
 package com.example.worktimeadministration.model.dto
 
+import com.example.worktimeadministration.model.aggregates.DATE_TIME_PATTERN
 import com.example.worktimeadministration.model.aggregates.EntryType
 import com.example.worktimeadministration.model.aggregates.UsedEmployeeVacationHours
 import com.example.worktimeadministration.model.aggregates.project.DATE_PATTERN
-import com.example.worktimeadministration.model.events.DATE_TIME_PATTERN
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty

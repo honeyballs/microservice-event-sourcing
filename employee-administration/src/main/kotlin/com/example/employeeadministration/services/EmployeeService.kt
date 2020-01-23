@@ -64,7 +64,7 @@ class EmployeeService(
     }
 
     fun deleteEmployee(id: String) {
-        val employee = employeeRepository.getByIdAndDeletedFalse(id).ifPresentOrElse({
+        employeeRepository.getByIdAndDeletedFalse(id).ifPresentOrElse({
             it.delete()
             eventProducer.produceAggregateEvent(it)
         }) {

@@ -1,14 +1,8 @@
 package com.example.employeeadministration.model.aggregates
 
-import com.example.employeeadministration.model.events.department.DepartmentCreated
-import com.example.employeeadministration.model.events.department.DepartmentDeleted
-import com.example.employeeadministration.model.events.department.DepartmentNameChanged
-import com.example.employeeadministration.model.events.position.PositionCreated
-import com.example.employeeadministration.model.events.position.PositionDeleted
-import com.example.employeeadministration.model.events.position.PositionTitleChanged
-import com.example.employeeadministration.model.events.position.PositionWageRangeChanged
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import events.employee.*
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.*

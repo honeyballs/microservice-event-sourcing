@@ -3,6 +3,7 @@ package com.example.projectadministration.model.aggregates
 import com.example.projectadministration.model.events.customer.*
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import events.project.*
 import java.lang.Exception
 import java.util.*
 
@@ -22,7 +23,17 @@ class Customer(
     companion object {
         fun create(name: String, address: Address, contact: CustomerContact): Customer {
             val customer = Customer(name, address, contact)
-            customer.registerEvent(CustomerCreated(customer.id, name, address, contact))
+            customer.registerEvent(CustomerCreated(
+                    customer.id,
+                    name,
+                    address.street,
+                    address.no,
+                    address.city,
+                    address.zipCode.zip,
+                    contact.firstname,
+                    contact.lastname,
+                    contact.mail,
+                    contact.phone))
             return customer
         }
     }
@@ -33,12 +44,12 @@ class Customer(
 
     fun changeCustomerContact(contact: CustomerContact) {
         this.contact = contact
-        registerEvent(CustomerContactChanged(this.contact))
+        registerEvent(CustomerContactChanged(this.contact.firstname, this.contact.lastname, this.contact.mail, this.contact.phone))
     }
 
     fun moveCompanyLocation(address: Address) {
         this.address = address
-        registerEvent(CustomerMoved(this.address))
+        registerEvent(CustomerMoved(this.address.street, this.address.no, this.address.city, this.address.zipCode.zip))
     }
 
     fun changeName(name: String) {

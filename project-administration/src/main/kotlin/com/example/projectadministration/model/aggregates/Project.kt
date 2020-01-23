@@ -5,6 +5,7 @@ import com.example.projectadministration.model.events.project.*
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import events.project.*
 import java.time.LocalDate
 import java.util.*
 

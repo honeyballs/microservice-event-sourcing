@@ -1,26 +1,23 @@
-package com.example.projectadministration.model.events.project
+package events.project
 
-import com.example.projectadministration.model.aggregates.Customer
-import com.example.projectadministration.model.aggregates.DATE_PATTERN
-import com.example.projectadministration.model.events.Event
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
-import org.apache.kafka.common.protocol.types.Field
+import events.DATE_PATTERN
+import events.Event
 import java.time.LocalDate
-import java.util.*
 
 @JsonTypeName("project-created")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class ProjectCreated(
-        val projectId: String,
-        val name: String,
-        val description: String,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) val startDate: LocalDate,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) val projectedEndDate: LocalDate,
-        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) val endDate: LocalDate?,
-        val employees: Set<String>,
-        val customer: String
+    val projectId: String,
+    val name: String,
+    val description: String,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) val startDate: LocalDate,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) val projectedEndDate: LocalDate,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = DATE_PATTERN) val endDate: LocalDate?,
+    val employees: Set<String>,
+    val customer: String
 ) : Event() {
 
     init {

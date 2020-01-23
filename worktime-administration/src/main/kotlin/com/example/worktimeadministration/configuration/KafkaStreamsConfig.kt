@@ -7,12 +7,12 @@ import com.example.worktimeadministration.model.aggregates.WORKTIME_AGGREGATE
 import com.example.worktimeadministration.model.aggregates.WorktimeEntry
 import com.example.worktimeadministration.model.aggregates.employee.EMPLOYEE_AGGREGATE
 import com.example.worktimeadministration.model.aggregates.employee.Employee
-import com.example.worktimeadministration.model.events.Event
 import com.example.worktimeadministration.model.events.worktime.handleWorktimeEvent
 import com.example.worktimeadministration.model.aggregates.project.PROJECT_AGGREGATE
 import com.example.worktimeadministration.model.aggregates.project.Project
 import com.example.worktimeadministration.model.events.worktime.handleVacationHoursEvent
 import com.fasterxml.jackson.databind.ObjectMapper
+import events.Event
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.common.config.TopicConfig
 import org.apache.kafka.common.serialization.Serde
@@ -107,13 +107,13 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
                 .groupByKey()
                 .aggregate(
                         { null },
-                        { key: String, value: Event, aggregate: UsedEmployeeVacationHours? -> handleVacationHoursEvent(value, aggregate) },
+                        { _: String, value: Event, aggregate: UsedEmployeeVacationHours? -> handleVacationHoursEvent(value, aggregate) },
                         Materialized.`as`<String, UsedEmployeeVacationHours, KeyValueStore<Bytes, ByteArray>>("$VACATION_AGGREGATE-store")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(usedVacationSerde)
                 )
                 .toStream()
-                .peek(ForeachAction { key: String , value: UsedEmployeeVacationHours  -> println(value.toString()) })
+                .peek(ForeachAction { _: String, value: UsedEmployeeVacationHours  -> println(value.toString()) })
                 .through("$VACATION_AGGREGATE-table", Produced.with(Serdes.String(), usedVacationSerde))
     }
 
@@ -123,13 +123,13 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
                 .groupByKey()
                 .aggregate(
                         { null },
-                        { key: String, value: Event, aggregate: WorktimeEntry? -> handleWorktimeEvent(value, aggregate) },
+                        { _: String, value: Event, aggregate: WorktimeEntry? -> handleWorktimeEvent(value, aggregate) },
                         Materialized.`as`<String, WorktimeEntry, KeyValueStore<Bytes, ByteArray>>("$WORKTIME_AGGREGATE-store")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(worktimeSerde)
                 )
                 .toStream()
-                .peek(ForeachAction { key: String , value: WorktimeEntry  -> println(value.toString()) })
+                .peek(ForeachAction { _: String, value: WorktimeEntry  -> println(value.toString()) })
                 .through("$WORKTIME_AGGREGATE-table", Produced.with(Serdes.String(), worktimeSerde))
     }
 

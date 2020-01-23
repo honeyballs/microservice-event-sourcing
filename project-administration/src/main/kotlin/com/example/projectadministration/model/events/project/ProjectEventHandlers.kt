@@ -1,7 +1,8 @@
 package com.example.projectadministration.model.events.project
 
 import com.example.projectadministration.model.aggregates.Project
-import com.example.projectadministration.model.events.Event
+import events.Event
+import events.project.*
 
 
 fun handleProjectEvent(event: Event, project: Project?): Project {

@@ -1,12 +1,10 @@
 package com.example.employeeadministration.services
 
 import com.example.employeeadministration.model.aggregates.Aggregate
-import com.example.employeeadministration.model.aggregates.EMPLOYEE_AGGREGATE
-import com.example.employeeadministration.model.events.Event
+import events.Event
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 @Service
 class EventProducer(val kafkaTemplate: KafkaTemplate<String, Event>) : AggregateEventProducingService {

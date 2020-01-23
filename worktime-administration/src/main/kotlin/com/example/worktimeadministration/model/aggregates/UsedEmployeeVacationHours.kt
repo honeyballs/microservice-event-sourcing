@@ -1,8 +1,8 @@
 package com.example.worktimeadministration.model.aggregates
 
-import com.example.worktimeadministration.model.events.worktime.UsedHoursCreated
-import com.example.worktimeadministration.model.events.worktime.UsedHoursDeleted
-import com.example.worktimeadministration.model.events.worktime.UsedHoursUpdated
+import events.worktime.UsedHoursCreated
+import events.worktime.UsedHoursDeleted
+import events.worktime.UsedHoursUpdated
 import java.util.*
 
 const val VACATION_AGGREGATE = "vacation-hours"

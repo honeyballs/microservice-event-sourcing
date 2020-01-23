@@ -1,28 +1,30 @@
-package com.example.employeeadministration.model.events.employee
+package events.employee
 
-import com.example.employeeadministration.model.events.Event
-import com.example.employeeadministration.model.valueobjects.Address
-import com.example.employeeadministration.model.valueobjects.BankDetails
-import com.example.employeeadministration.model.valueobjects.CompanyMail
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import events.Event
 import java.math.BigDecimal
 import java.time.LocalDate
 
 @JsonTypeName("employee-created")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class EmployeeCreated(
-        val employeeId: String,
-        val firstname: String,
-        val lastname: String,
-        val birthday: LocalDate,
-        val address: Address,
-        val bankDetails: BankDetails,
-        val department: String,
-        val position: String,
-        val availableVacationHours: Int,
-        val hourlyRate: BigDecimal,
-        val mail: CompanyMail
+    val employeeId: String,
+    val firstname: String,
+    val lastname: String,
+    val birthday: LocalDate,
+    val street: String,
+    val no: Int,
+    val city: String,
+    val zipCode: Int,
+    val iban: String,
+    val bic: String,
+    val bankname: String,
+    val department: String,
+    val position: String,
+    val availableVacationHours: Int,
+    val hourlyRate: BigDecimal,
+    val mail: String
 ) : Event() {
 
     init {
@@ -34,9 +36,9 @@ data class EmployeeCreated(
 @JsonTypeName("employee-change-name")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class EmployeeChangedName(
-        val firstname: String,
-        val lastname: String,
-        val mail: CompanyMail
+    val firstname: String,
+    val lastname: String,
+    val mail: String
 ) : Event() {
 
     init {
@@ -48,7 +50,10 @@ data class EmployeeChangedName(
 @JsonTypeName("employee-moved")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class EmployeeMoved(
-        val address: Address
+    val street: String,
+    val no: Int,
+    val city: String,
+    val zipCode: Int
 ) : Event() {
 
     init {
@@ -60,7 +65,7 @@ data class EmployeeMoved(
 @JsonTypeName("employee-adjusted-rate")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class EmployeeRateAdjusted(
-        val rate: BigDecimal
+    val rate: BigDecimal
 ) : Event() {
 
     init {
@@ -72,7 +77,7 @@ data class EmployeeRateAdjusted(
 @JsonTypeName("employee-changed-department")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class EmployeeChangedDepartment(
-        val department: String
+    val department: String
 ) : Event() {
 
     init {
@@ -84,7 +89,9 @@ data class EmployeeChangedDepartment(
 @JsonTypeName("employee-changed-banking")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class EmployeeChangedBanking(
-        val bankDetails: BankDetails
+    val iban: String,
+    val bic: String,
+    val bankname: String
 ) : Event() {
 
     init {
@@ -96,7 +103,7 @@ data class EmployeeChangedBanking(
 @JsonTypeName("employee-changed-position")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class EmployeeChangedPosition(
-        val position: String
+    val position: String
 ) : Event() {
 
     init {
@@ -108,7 +115,7 @@ data class EmployeeChangedPosition(
 @JsonTypeName("employee-deleted")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class EmployeeDeleted(
-        val deleted: Boolean = true
+    val deleted: Boolean = true
 ) : Event() {
 
     init {

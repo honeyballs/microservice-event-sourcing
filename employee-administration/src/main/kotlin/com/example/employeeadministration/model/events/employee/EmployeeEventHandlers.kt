@@ -1,7 +1,12 @@
 package com.example.employeeadministration.model.events.employee
 
 import com.example.employeeadministration.model.aggregates.Employee
-import com.example.employeeadministration.model.events.Event
+import com.example.employeeadministration.model.valueobjects.Address
+import com.example.employeeadministration.model.valueobjects.BankDetails
+import com.example.employeeadministration.model.valueobjects.CompanyMail
+import com.example.employeeadministration.model.valueobjects.ZipCode
+import events.Event
+import events.employee.*
 
 
 fun handleEmployeeEvent(event: Event, employee: Employee?): Employee {
@@ -33,13 +38,13 @@ fun handleCreateEvent(event: EmployeeCreated): Employee {
             event.firstname,
             event.lastname,
             event.birthday,
-            event.address,
-            event.bankDetails,
+            Address(event.street, event.no, event.city, ZipCode(event.zipCode)),
+            BankDetails(event.iban, event.bic, event.bankname),
             event.department,
             event.position,
             event.availableVacationHours,
             event.hourlyRate,
-            event.mail,
+            CompanyMail(event.mail),
             event.employeeId
     )
 }
@@ -47,17 +52,17 @@ fun handleCreateEvent(event: EmployeeCreated): Employee {
 fun handleNameChangedEvent(event: EmployeeChangedName, employee: Employee) {
     employee.firstname = event.firstname
     employee.lastname = event.lastname
-    employee.companyMail = event.mail
+    employee.companyMail = CompanyMail(event.mail)
 }
 
 
 fun handleMovedEvent(event: EmployeeMoved, employee: Employee) {
-    employee.address = event.address
+    employee.address = Address(event.street, event.no, event.city, ZipCode(event.zipCode))
 }
 
 
 fun handleChangedBankingEvent(event: EmployeeChangedBanking, employee: Employee) {
-    employee.bankDetails = event.bankDetails
+    employee.bankDetails = BankDetails(event.iban, event.bic, event.bankname)
 }
 
 fun handleChangedDepartmentEvent(event: EmployeeChangedDepartment, employee: Employee) {

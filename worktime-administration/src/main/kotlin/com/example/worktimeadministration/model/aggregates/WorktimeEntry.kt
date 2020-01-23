@@ -1,17 +1,17 @@
 package com.example.worktimeadministration.model.aggregates
 
-import com.example.worktimeadministration.model.aggregates.employee.Employee
-import com.example.worktimeadministration.model.aggregates.project.Project
-import com.example.worktimeadministration.model.events.DATE_TIME_PATTERN
-import com.example.worktimeadministration.model.events.worktime.*
+
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import events.worktime.*
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
 
 const val WORKTIME_AGGREGATE = "worktime"
+const val DATE_TIME_PATTERN = "dd.MM.yyyy HH:mm:ss"
+
 
 @JsonTypeName("worktime")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
@@ -43,7 +43,7 @@ class WorktimeEntry(
                 type: EntryType
         ): WorktimeEntry {
             val entry = WorktimeEntry(startTime, endTime, pauseTimeInMinutes, project, employee, description, type)
-            entry.registerEvent(WorktimeCreated(entry.id, startTime, endTime, pauseTimeInMinutes, project, employee, description, type))
+            entry.registerEvent(WorktimeCreated(entry.id, startTime, endTime, pauseTimeInMinutes, project, employee, description, type.name))
             return entry
         }
     }

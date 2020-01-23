@@ -1,21 +1,22 @@
-package com.example.projectadministration.model.events.customer
+package events.project
 
-import com.example.projectadministration.model.aggregates.Address
-import com.example.projectadministration.model.aggregates.CustomerContact
-import com.example.projectadministration.model.aggregates.DATE_PATTERN
-import com.example.projectadministration.model.events.Event
-import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
-import java.time.LocalDate
+import events.Event
 
 @JsonTypeName("customer-created")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class CustomerCreated(
-        val customerId: String,
-        val name: String,
-        val address: Address,
-        val contact: CustomerContact
+    val customerId: String,
+    val name: String,
+    val street: String,
+    val no: Int,
+    val city: String,
+    val zipCode: Int,
+    val firstname: String,
+    val lastname: String,
+    val mail: String,
+    val phone: String
 ) : Event() {
 
     init {
@@ -34,7 +35,12 @@ data class CustomerNameChanged(val name: String) : Event() {
 
 @JsonTypeName("customer-moved")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-data class CustomerMoved(val address: Address) : Event() {
+data class CustomerMoved(
+    val street: String,
+    val no: Int,
+    val city: String,
+    val zipCode: Int
+) : Event() {
     init {
         type = "Customer changed location"
     }
@@ -42,7 +48,12 @@ data class CustomerMoved(val address: Address) : Event() {
 
 @JsonTypeName("customer-contact-changed")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
-data class CustomerContactChanged(val contact: CustomerContact) : Event() {
+data class CustomerContactChanged(
+    val firstname: String,
+    val lastname: String,
+    val mail: String,
+    val phone: String
+) : Event() {
     init {
         type = "Customer contact changed"
     }

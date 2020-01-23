@@ -2,8 +2,8 @@ package com.example.worktimeadministration.configuration
 
 import com.example.worktimeadministration.model.aggregates.VACATION_AGGREGATE
 import com.example.worktimeadministration.model.aggregates.WORKTIME_AGGREGATE
-import com.example.worktimeadministration.model.events.Event
 import com.fasterxml.jackson.databind.ObjectMapper
+import events.Event
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.TopicConfig

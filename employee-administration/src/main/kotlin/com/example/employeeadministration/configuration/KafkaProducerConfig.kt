@@ -3,8 +3,8 @@ package com.example.employeeadministration.configuration
 import com.example.employeeadministration.model.aggregates.DEPARTMENT_AGGREGATE
 import com.example.employeeadministration.model.aggregates.EMPLOYEE_AGGREGATE
 import com.example.employeeadministration.model.aggregates.POSITION_AGGREGATE
-import com.example.employeeadministration.model.events.Event
 import com.fasterxml.jackson.databind.ObjectMapper
+import events.Event
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.config.TopicConfig

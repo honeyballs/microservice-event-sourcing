@@ -1,7 +1,9 @@
 package com.example.worktimeadministration.model.events.worktime
 
+import com.example.worktimeadministration.model.aggregates.EntryType
 import com.example.worktimeadministration.model.aggregates.WorktimeEntry
-import com.example.worktimeadministration.model.events.Event
+import events.Event
+import events.worktime.*
 
 fun handleWorktimeEvent(event: Event, entry: WorktimeEntry?): WorktimeEntry {
     var e = entry
@@ -34,7 +36,7 @@ fun handleEntryCreatedEvent(event: WorktimeCreated): WorktimeEntry {
             event.projectId,
             event.employeeId,
             event.description,
-            event.entryType,
+            EntryType.valueOf(event.entryType),
             event.worktimeId
     )
 }

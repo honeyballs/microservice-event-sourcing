@@ -6,10 +6,10 @@ import com.example.projectadministration.model.aggregates.Customer
 import com.example.projectadministration.model.aggregates.PROJECT_AGGREGATE
 import com.example.projectadministration.model.aggregates.Project
 import com.example.projectadministration.model.aggregates.employee.*
-import com.example.projectadministration.model.events.Event
 import com.example.projectadministration.model.events.customer.handleCustomerEvent
 import com.example.projectadministration.model.events.project.handleProjectEvent
 import com.fasterxml.jackson.databind.ObjectMapper
+import events.Event
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.common.config.TopicConfig
 import org.apache.kafka.common.serialization.Serde
@@ -110,13 +110,13 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
                 .groupByKey()
                 .aggregate(
                         { null },
-                        { key: String, value: Event, aggregate: Customer? -> handleCustomerEvent(value, aggregate) },
+                        { _: String, value: Event, aggregate: Customer? -> handleCustomerEvent(value, aggregate) },
                         Materialized.`as`<String, Customer, KeyValueStore<Bytes, ByteArray>>("$CUSTOMER_AGGREGATE-store")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(customerSerde)
                 )
                 .toStream()
-                .peek(ForeachAction { key: String , value: Customer  -> println(value.toString()) })
+                .peek(ForeachAction { _: String, value: Customer  -> println(value.toString()) })
                 .through("$CUSTOMER_AGGREGATE-table", Produced.with(Serdes.String(), customerSerde))
     }
 
@@ -126,13 +126,13 @@ class KafkaStreamsConfig(final val mapper: ObjectMapper) {
                 .groupByKey()
                 .aggregate(
                         { null },
-                        { key: String, value: Event, aggregate: Project? -> handleProjectEvent(value, aggregate) },
+                        { _: String, value: Event, aggregate: Project? -> handleProjectEvent(value, aggregate) },
                         Materialized.`as`<String, Project, KeyValueStore<Bytes, ByteArray>>("$PROJECT_AGGREGATE-store")
                                 .withKeySerde(Serdes.String())
                                 .withValueSerde(projectSerde)
                 )
                 .toStream()
-                .peek(ForeachAction { key: String , value: Project  -> println(value.toString()) })
+                .peek(ForeachAction { _: String, value: Project  -> println(value.toString()) })
                 .through("$PROJECT_AGGREGATE-table", Produced.with(Serdes.String(), projectSerde))
     }
 

@@ -1,7 +1,7 @@
 package com.example.employeeadministration.model.aggregates
 
-import com.example.employeeadministration.model.events.Event
 import com.fasterxml.jackson.annotation.*
+import events.Event
 
 @JsonTypeName("aggregate")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)

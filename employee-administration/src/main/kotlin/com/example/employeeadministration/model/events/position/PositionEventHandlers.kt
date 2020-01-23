@@ -1,7 +1,11 @@
 package com.example.employeeadministration.model.events.position
 
 import com.example.employeeadministration.model.aggregates.Position
-import com.example.employeeadministration.model.events.Event
+import events.Event
+import events.employee.PositionCreated
+import events.employee.PositionDeleted
+import events.employee.PositionTitleChanged
+import events.employee.PositionWageRangeChanged
 
 
 fun handlePositionEvent(event: Event, position: Position?): Position {

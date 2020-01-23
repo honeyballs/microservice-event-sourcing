@@ -1,7 +1,10 @@
 package com.example.employeeadministration.model.events.department
 
 import com.example.employeeadministration.model.aggregates.Department
-import com.example.employeeadministration.model.events.Event
+import events.Event
+import events.employee.DepartmentCreated
+import events.employee.DepartmentDeleted
+import events.employee.DepartmentNameChanged
 
 fun handleDepartmentEvent(event: Event, department: Department?): Department {
     var dep = department

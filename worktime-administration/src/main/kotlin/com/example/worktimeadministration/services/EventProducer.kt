@@ -1,7 +1,7 @@
 package com.example.worktimeadministration.services
 
 import com.example.worktimeadministration.model.aggregates.Aggregate
-import com.example.worktimeadministration.model.events.Event
+import events.Event
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service

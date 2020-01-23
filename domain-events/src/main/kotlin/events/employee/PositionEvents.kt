@@ -1,17 +1,17 @@
-package com.example.employeeadministration.model.events.position
+package events.employee
 
-import com.example.employeeadministration.model.events.Event
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import events.Event
 import java.math.BigDecimal
 
 @JsonTypeName("position-created")
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
 data class PositionCreated(
-        val positionId: String,
-        val title: String,
-        val minHourlyWage: BigDecimal,
-        val maxHourlyWage: BigDecimal
+    val positionId: String,
+    val title: String,
+    val minHourlyWage: BigDecimal,
+    val maxHourlyWage: BigDecimal
 ): Event() {
 
     init {

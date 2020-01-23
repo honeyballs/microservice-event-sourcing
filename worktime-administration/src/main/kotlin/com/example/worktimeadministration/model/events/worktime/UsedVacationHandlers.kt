@@ -2,7 +2,10 @@ package com.example.worktimeadministration.model.events.worktime
 
 import com.example.worktimeadministration.model.aggregates.UsedEmployeeVacationHours
 import com.example.worktimeadministration.model.aggregates.WorktimeEntry
-import com.example.worktimeadministration.model.events.Event
+import events.Event
+import events.worktime.UsedHoursCreated
+import events.worktime.UsedHoursDeleted
+import events.worktime.UsedHoursUpdated
 
 fun handleVacationHoursEvent(event: Event, entry: UsedEmployeeVacationHours?): UsedEmployeeVacationHours {
     var used = entry
